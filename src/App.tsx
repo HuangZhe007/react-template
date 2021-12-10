@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Button, ConfigProvider } from 'antd';
 import zh from 'antd/lib/locale/zh_HK';
 import './App.less';
+import Modals from 'modals';
+import Example from 'pages/Example';
 function App() {
   const [colorClass, setColorClass] = useState('l-color');
   return (
     <div className={colorClass}>
+      <Modals />
       <ConfigProvider locale={zh} prefixCls="demo">
         <Button
           type="primary"
@@ -15,6 +18,7 @@ function App() {
           Button
         </Button>
         <div className="test-class" />
+        <Example />
       </ConfigProvider>
     </div>
   );

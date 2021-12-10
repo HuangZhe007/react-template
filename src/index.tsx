@@ -1,13 +1,42 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
+import { NetworkContextName } from 'constants/index';
+import { useLanguage } from 'i18n';
+import Web3ReactManager from 'components/Web3ReactManager';
+import { ANTD_LOCAL } from 'i18n/config';
+import { ConfigProvider } from 'antd';
+import getLibrary from 'utils/getLibrary';
+import ModalProvider from './contexts/useModal';
+import ChianProvider from 'contexts/useChian';
+import StoreProvider from 'contexts/useStore';
 
+import './index.css';
+const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
+
+function ContextProviders({ children }: { children?: React.ReactNode }) {
+  const { language } = useLanguage();
+  return (
+    <ConfigProvider locale={ANTD_LOCAL[language]} autoInsertSpaceInButton={false}>
+      <ModalProvider>{children}</ModalProvider>
+    </ConfigProvider>
+  );
+}
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Web3ReactProvider getLibrary={getLibrary}>
+    <Web3ProviderNetwork getLibrary={getLibrary}>
+      <Web3ReactManager>
+        <ChianProvider>
+          <StoreProvider>
+            <ContextProviders>
+              <App />
+            </ContextProviders>
+          </StoreProvider>
+        </ChianProvider>
+      </Web3ReactManager>
+    </Web3ProviderNetwork>
+  </Web3ReactProvider>,
   document.getElementById('root'),
 );
 

@@ -1,0 +1,204 @@
+.common-modals {
+  .ant-tooltip-inner {
+    background: white;
+    color: #9aa5b5;
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .ant-tooltip-arrow-content {
+    background: white;
+  }
+  .ant-modal-header {
+    height: 64px;
+    border: 1px solid var(--ant-modal-header-border);
+    .ant-modal-title {
+      line-height: 28px;
+    }
+  }
+  .ant-modal-close-x {
+    height: 62px;
+    line-height: 62px;
+  }
+  .common-modal-left-icon {
+    cursor: pointer;
+    font-size: 18px;
+    text-align: left;
+    color: var(--ant-text4-color);
+  }
+  .list-box,
+  .list-header,
+  .list-footer {
+    width: 100%;
+    padding: 10px 24px 22px;
+  }
+  .list-header {
+    .token-input {
+      margin-top: 15px;
+      height: 56px;
+      font-size: 18px;
+      color: var(--ant-text3-color);
+      border-color: var(--ant-primary-disabled-color);
+      &:focus {
+        border-color: var(--ant-primary-color);
+      }
+    }
+    .token-input-fail {
+      border-color: var(--ant-fail-input);
+      &:hover {
+        border-color: var(--ant-fail-input);
+      }
+    }
+  }
+  .list-footer {
+    border: 1px solid var(--ant-border2);
+  }
+  .list-box {
+    flex: 1;
+    overflow-y: scroll;
+  }
+  .common-button {
+    font-size: 18px;
+    margin-top: 15px;
+    width: 100%;
+    height: 56px;
+  }
+  .ant-modal-content {
+    border-radius: 4px;
+    overflow: auto;
+  }
+  .ant-modal-body {
+    display: flex;
+    flex: 1;
+    padding: 24px 0;
+    width: 35vw;
+    min-width: 500px;
+    max-width: 500px;
+    max-height: 800px;
+    flex-direction: column;
+  }
+}
+
+.mobile-site-content {
+  .ant-modal-wrap {
+    overflow: scroll;
+    overflow-y: hidden;
+  }
+  .common-modals {
+    .ant-btn-primary {
+      border: 0;
+    }
+    .ant-modal-body {
+      max-height: 80vh;
+    }
+    .common-modal-bottom();
+    .list-header {
+      .token-input {
+        margin-top: 1rem;
+        height: 40px;
+        font-size: 14px;
+        color: var(--ant-text6-color);
+        border: 1px solid var(--ant-border4);
+        background: var(--ant-black4);
+        &:focus {
+          border-color: var(--ant-primary-color);
+        }
+      }
+      .token-input-fail {
+        border-color: var(--ant-fail-input);
+        &:hover {
+          border-color: var(--ant-fail-input);
+        }
+        &:focus {
+          border-color: var(--ant-fail-input);
+        }
+      }
+    }
+    .ant-modal-content {
+      color: var(--ant-text6-color);
+      background: var(--ant-black4);
+      border-radius: 1.14rem 1.14rem 0rem 0rem;
+      overflow: hidden;
+      .ant-modal-header {
+        padding: 1.14rem 1.17rem;
+        height: 4rem;
+        .ant-modal-title {
+          line-height: 1.72rem;
+          font-size: 1.14rem;
+          color: var(--ant-text6-color);
+        }
+        background: inherit;
+        border: 0;
+        border-bottom: 1px solid var(--ant-border4);
+      }
+
+      .ant-modal-close {
+        padding: 1.14rem 1rem;
+        height: 4rem;
+        .ant-modal-close-x {
+          line-height: 1.72rem;
+          font-size: 1rem;
+          width: auto;
+          height: auto;
+        }
+      }
+
+      .list-box {
+        color: var(--ant-text6-color);
+      }
+      .ant-modal-close {
+        color: var(--ant-text6-color);
+      }
+    }
+    .list-box,
+    .list-header,
+    .list-footer {
+      width: 100%;
+      padding: 10px 15px 20px;
+    }
+    .common-button {
+      border-radius: 2px;
+      width: 100%;
+      height: 2.86rem;
+      font-size: 1rem;
+      line-height: 1.28rem;
+    }
+    .list-footer {
+      padding: 1rem;
+      border: 1px solid var(--ant-border4);
+    }
+  }
+  .tooltip-modal {
+    .common-modal-center();
+    .ant-modal-close,
+    .ant-modal-header {
+      display: none;
+    }
+    .ant-modal-body {
+      line-height: 18px;
+      font-size: 14px;
+      padding: 19px;
+      .common-button {
+        height: 32px;
+        font-size: 14px;
+        line-height: 18px;
+      }
+    }
+  }
+  .common-modal-center {
+    height: auto;
+    min-height: 0;
+    display: inline-block;
+    margin: 8px auto;
+    min-width: auto !important;
+    width: 90% !important;
+    max-width: 90% !important;
+    .ant-modal-body {
+      min-width: 100%;
+      min-height: auto;
+      height: auto;
+    }
+    .ant-modal-content {
+      border-radius: 8px;
+    }
+  }
+}
