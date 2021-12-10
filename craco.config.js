@@ -1,5 +1,5 @@
 /* eslint-disable */
-const CracoAntDesignPlugin = require('craco-antd');
+const CracoLessPlugin = require('craco-less');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const { NODE_ENV } = process.env;
@@ -27,9 +27,14 @@ module.exports = {
   devServer: {},
   plugins: [
     {
-      plugin: CracoAntDesignPlugin,
+      plugin: CracoLessPlugin,
       options: {
-        customizeTheme: {},
+        lessLoaderOptions: {
+          lessOptions: {
+            modifyVars: {},
+            javascriptEnabled: true,
+          },
+        },
       },
     },
   ],
