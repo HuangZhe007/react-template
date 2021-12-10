@@ -10,4 +10,5 @@ interface Window {
   };
   web3?: {};
   plus?: any;
+  NightElf?: {};
 }

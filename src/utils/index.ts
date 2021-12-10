@@ -4,6 +4,7 @@ import { getAddress } from '@ethersproject/address';
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers';
 import { supportedChainId } from 'constants/index';
 import EventEmitter from 'events';
+import { aelfConstants } from 'constants/aelfConstants';
 
 export const eventBus = new EventEmitter();
 
@@ -81,4 +82,39 @@ export function shortenAddress(address: string | null, chars = 4): string {
     throw Error(`Invalid 'address' parameter '${address}'.`);
   }
   return `${parsed.substring(0, chars + 2)}...${parsed.substring(42 - chars)}`;
+}
+
+export const sleep = (time: number) => {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
+};
+
+export function getELFScanLink(data: string, type: 'transaction' | 'token' | 'address' | 'block'): string {
+  const prefix = aelfConstants.EXPLORER_URL;
+  switch (type) {
+    case 'transaction': {
+      return `${prefix}tx/${data}`;
+    }
+    case 'token': {
+      return `${prefix}token/${data}`;
+    }
+    case 'block': {
+      return `${prefix}block/${data}`;
+    }
+    case 'address':
+    default: {
+      return `${prefix}address/${data}`;
+    }
+  }
+}
+
+export function shortenString(address: string | null, chars = 10): string {
+  const parsed = address;
+  if (!parsed) {
+    return '';
+  }
+  return `${parsed.substring(0, chars)}...${parsed.substring(parsed.length - chars)}`;
 }

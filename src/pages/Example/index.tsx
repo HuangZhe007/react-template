@@ -1,4 +1,5 @@
 import { Button } from 'antd';
+import { useAElf } from 'contexts/useAElf';
 import { basicModalView } from 'contexts/useModal/actions';
 import { useModalDispatch } from 'contexts/useModal/hooks';
 import { useActiveWeb3React } from 'hooks/web3';
@@ -7,6 +8,7 @@ body.className = 'l-color';
 export default function Example() {
   const { account } = useActiveWeb3React();
   const modalDispatch = useModalDispatch();
+  const [{ address, chainId }, { Connect, DisConnect }] = useAElf();
   return (
     <div>
       <Button
@@ -16,7 +18,7 @@ export default function Example() {
             ? modalDispatch(basicModalView.setWalletModal.actions(true))
             : modalDispatch(basicModalView.setAccountModal.actions(true));
         }}>
-        {account ? 'Wallet' : 'Connect'}
+        {account ? account : 'Connect'}
       </Button>
       <Button
         type="primary"
@@ -29,6 +31,14 @@ export default function Example() {
         }}>
         color
       </Button>
+      <Button
+        type="primary"
+        onClick={() => {
+          !address ? Connect() : DisConnect();
+        }}>
+        {address ? address : 'Connect aelf'}
+      </Button>
+      {chainId}
       <div className="test-class" />
     </div>
   );

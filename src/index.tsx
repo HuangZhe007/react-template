@@ -11,6 +11,7 @@ import getLibrary from 'utils/getLibrary';
 import ModalProvider from './contexts/useModal';
 import ChianProvider from 'contexts/useChian';
 import StoreProvider from 'contexts/useStore';
+import AElfProvider from 'contexts/useAElf';
 
 import './index.css';
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
@@ -27,13 +28,15 @@ ReactDOM.render(
   <Web3ReactProvider getLibrary={getLibrary}>
     <Web3ProviderNetwork getLibrary={getLibrary}>
       <Web3ReactManager>
-        <ChianProvider>
-          <StoreProvider>
-            <ContextProviders>
-              <App />
-            </ContextProviders>
-          </StoreProvider>
-        </ChianProvider>
+        <AElfProvider>
+          <ChianProvider>
+            <StoreProvider>
+              <ContextProviders>
+                <App />
+              </ContextProviders>
+            </StoreProvider>
+          </ChianProvider>
+        </AElfProvider>
       </Web3ReactManager>
     </Web3ProviderNetwork>
   </Web3ReactProvider>,
