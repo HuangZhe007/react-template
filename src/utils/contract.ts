@@ -130,3 +130,50 @@ export class ContractBasic {
     }
   };
 }
+
+interface AElfContractProps {
+  contract?: any;
+}
+type AElfCallViewMethod = (functionName: string, paramsOption?: any) => Promise<any | ErrorMsg>;
+
+type AElfCallSendMethod = (functionName: string, paramsOption?: any) => Promise<ErrorMsg> | Promise<any>;
+
+export class AElfContractBasic {
+  public contract: any;
+  constructor(options: AElfContractProps) {
+    const { contract } = options;
+
+    this.contract = contract;
+  }
+  public callViewMethod: AElfCallViewMethod = async (functionName, paramsOption) => {
+    try {
+      const contract = this.contract;
+
+      return await contract[functionName].call(paramsOption);
+    } catch (e) {
+      return { error: e };
+    }
+  };
+
+  public callSendMethod: AElfCallSendMethod = async (functionName, paramsOption) => {
+    if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
+    try {
+      const contract = this.contract;
+
+      return await contract[functionName](...(paramsOption || {}));
+    } catch (e) {
+      return { error: e };
+    }
+  };
+
+  public callSendPromiseMethod: AElfCallSendMethod = async (functionName, paramsOption) => {
+    if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
+    try {
+      const contract = this.contract;
+
+      return contract[functionName](...(paramsOption || {}));
+    } catch (e) {
+      return { error: e };
+    }
+  };
+}
