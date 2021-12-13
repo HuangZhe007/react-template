@@ -132,7 +132,7 @@ export class ContractBasic {
 }
 
 interface AElfContractProps {
-  contract?: any;
+  contract: any;
 }
 type AElfCallViewMethod = (functionName: string, paramsOption?: any) => Promise<any | ErrorMsg>;
 
