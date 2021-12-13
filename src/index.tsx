@@ -12,6 +12,7 @@ import ModalProvider from './contexts/useModal';
 import ChianProvider from 'contexts/useChian';
 import StoreProvider from 'contexts/useStore';
 import AElfProvider from 'contexts/useAElf';
+import AElfContractProvider from 'contexts/useAElfContract';
 
 import './index.css';
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
@@ -20,7 +21,9 @@ function ContextProviders({ children }: { children?: React.ReactNode }) {
   const { language } = useLanguage();
   return (
     <ConfigProvider locale={ANTD_LOCAL[language]} autoInsertSpaceInButton={false} prefixCls="demo">
-      <ModalProvider>{children}</ModalProvider>
+      <AElfContractProvider>
+        <ModalProvider>{children}</ModalProvider>
+      </AElfContractProvider>
     </ConfigProvider>
   );
 }

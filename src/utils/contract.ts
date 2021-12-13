@@ -148,7 +148,6 @@ export class AElfContractBasic {
   public callViewMethod: AElfCallViewMethod = async (functionName, paramsOption) => {
     try {
       const contract = this.contract;
-
       return await contract[functionName].call(paramsOption);
     } catch (e) {
       return { error: e };
