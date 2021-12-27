@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
-import { NetworkContextName } from 'constants/index';
+import { prefixCls, NetworkContextName } from 'constants/index';
 import { useLanguage } from 'i18n';
 import Web3ReactManager from 'components/Web3ReactManager';
 import { ANTD_LOCAL } from 'i18n/config';
@@ -20,7 +20,7 @@ const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
 function ContextProviders({ children }: { children?: React.ReactNode }) {
   const { language } = useLanguage();
   return (
-    <ConfigProvider locale={ANTD_LOCAL[language]} autoInsertSpaceInButton={false} prefixCls="demo">
+    <ConfigProvider locale={ANTD_LOCAL[language]} autoInsertSpaceInButton={false} prefixCls={prefixCls}>
       <AElfContractProvider>
         <ModalProvider>{children}</ModalProvider>
       </AElfContractProvider>

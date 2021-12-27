@@ -138,3 +138,5 @@ const testNetworkList = [
 ];
 
 export const networkList = process.env.REACT_APP_ENV === 'prod' ? prodNetworkList : testNetworkList;
+
+export const prefixCls = process.env.REACT_APP_PREFIX;

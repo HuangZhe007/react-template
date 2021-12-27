@@ -1,11 +1,12 @@
+@import './constants.less';
 html {
-  --demo-primary-color: green;
-  --demo-primary-color-hover: green;
-  --demo-red-color: red;
+  --@{app-prefix}-primary-color: green;
+  --@{app-prefix}-primary-color-hover: green;
+  --@{app-prefix}-red-color: red;
 }
 
 html[data-theme='dark'] {
-  --demo-red-color: green;
-  --demo-primary-color: red;
-  --demo-primary-color-hover: red;
+  --@{app-prefix}-red-color: green;
+  --@{app-prefix}-primary-color: red;
+  --@{app-prefix}-primary-color-hover: red;
 }

@@ -35,7 +35,7 @@ export const EXPLORER_URL = 'https://explorer.aelf.io/';
 
 export const CHAIN_ID = 'AELF';
 
-export const APP_NAME = 'Demo';
+export const APP_NAME = process.env.REACT_APP_HTML_TITLE;
 
 export const CONTRACTS = {
   tokenContract: 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE',
