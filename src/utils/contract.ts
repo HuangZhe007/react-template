@@ -25,6 +25,7 @@ interface ContractProps {
   provider?: provider;
   contractAddress: string;
   chainId?: number;
+  aelfContract?: any;
 }
 
 interface ErrorMsg {
@@ -58,6 +59,47 @@ type CallSendMethod = (
 
 export type ContractBasicErrorMsg = ErrorMsg;
 export class ContractBasic {
+  public address?: string;
+  public provider?: provider;
+  public chainId?: number;
+  public callContract?: WB3ContractBasic | AElfContractBasic;
+  constructor(options: ContractProps) {
+    this.callContract =
+      ChainConstants.chainType === 'AELF' ? new AElfContractBasic(options) : new WB3ContractBasic(options);
+  }
+
+  public callViewMethod: CallViewMethod = async (
+    functionName,
+    paramsOption,
+    callOptions = { defaultBlock: 'latest' },
+  ) => {
+    if (!this.callContract) return { error: { code: 401, message: 'Contract init error' } };
+    if (ChainConstants.chainType === 'AELF') {
+      return this.callContract.callViewMethod(functionName, paramsOption);
+    } else {
+      return this.callContract.callViewMethod(functionName, paramsOption, callOptions);
+    }
+  };
+
+  public callSendMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
+    if (!this.callContract) return { error: { code: 401, message: 'Contract init error' } };
+    if (ChainConstants.chainType === 'AELF') {
+      return this.callContract.callSendMethod(functionName, account, paramsOption, sendOptions);
+    } else {
+      return this.callContract.callSendMethod(functionName, paramsOption);
+    }
+  };
+  public callSendPromiseMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
+    if (!this.callContract) return { error: { code: 401, message: 'Contract init error' } };
+    if (ChainConstants.chainType === 'AELF') {
+      return this.callContract.callSendPromiseMethod(functionName, account, paramsOption, sendOptions);
+    } else {
+      return this.callContract.callSendPromiseMethod(functionName, paramsOption);
+    }
+  };
+}
+
+export class WB3ContractBasic {
   public contract: Contract | null;
   public contractForView: Contract;
   public address?: string;
@@ -131,19 +173,16 @@ export class ContractBasic {
   };
 }
 
-interface AElfContractProps {
-  contract: any;
-}
 type AElfCallViewMethod = (functionName: string, paramsOption?: any) => Promise<any | ErrorMsg>;
 
 type AElfCallSendMethod = (functionName: string, paramsOption?: any) => Promise<ErrorMsg> | Promise<any>;
 
 export class AElfContractBasic {
   public contract: any;
-  constructor(options: AElfContractProps) {
-    const { contract } = options;
+  constructor(options: ContractProps) {
+    const { aelfContract } = options;
 
-    this.contract = contract;
+    this.contract = aelfContract;
   }
   public callViewMethod: AElfCallViewMethod = async (functionName, paramsOption) => {
     try {

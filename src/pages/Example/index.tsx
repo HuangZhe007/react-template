@@ -5,8 +5,7 @@ import { basicModalView } from 'contexts/useModal/actions';
 import { useModalDispatch } from 'contexts/useModal/hooks';
 import { useActiveWeb3React } from 'hooks/web3';
 import { useEffect } from 'react';
-const body = window.document.getElementsByTagName('body')[0];
-body.className = 'l-color';
+const html = window.document.getElementsByTagName('html')[0];
 export default function Example() {
   const { account } = useActiveWeb3React();
   const modalDispatch = useModalDispatch();
@@ -37,10 +36,10 @@ export default function Example() {
       <Button
         type="primary"
         onClick={() => {
-          if (body.className === 'l-color') {
-            body.className = 'd-color';
+          if (!html.getAttribute('data-theme') || html.getAttribute('data-theme') === 'light') {
+            html.setAttribute('data-theme', 'dark');
           } else {
-            body.className = 'l-color';
+            html.setAttribute('data-theme', 'light');
           }
         }}>
         color

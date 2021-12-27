@@ -1,13 +1,28 @@
 import { message } from 'antd';
 import { getELFScanLink, shortenString, sleep } from 'utils';
-import { getAElf } from './aelf';
 import BigNumber from 'bignumber.js';
 import i18n from 'i18n';
+import { AElfContractBasic } from './contract';
+import AElf from './aelf';
 import { aelfConstants } from 'constants/aelfConstants';
-const Aelf = getAElf();
-const { CONTRACTS } = aelfConstants;
-export const approveELF = async (address = CONTRACTS['tokenContract'], tokenContract: any) => {
-  const approveResult = await tokenContract.Approve({
+let wallet: any = null,
+  aelf: any = null;
+
+export function getAElf() {
+  if (aelf) return aelf;
+  aelf = new AElf(new AElf.providers.HttpProvider(aelfConstants.HTTP_PROVIDER));
+  return aelf;
+}
+
+export function getWallet() {
+  const Wallet = AElf.wallet;
+  if (wallet) return wallet;
+  wallet = Wallet.getWalletByPrivateKey(aelfConstants.COMMON_PRIVATE);
+  return wallet;
+}
+
+export const approveELF = async (address: string, tokenContract: AElfContractBasic) => {
+  const approveResult = await tokenContract.callSendMethod('Approve', {
     symbol: 'ELF',
     spender: address,
     amount: '10000000000000000000000000',
@@ -21,8 +36,9 @@ export const approveELF = async (address = CONTRACTS['tokenContract'], tokenCont
   await MessageTxToExplore(TransactionId);
   return true;
 };
+
 async function getTxResult(TransactionId: string, reGetCount = 0): Promise<any> {
-  const txResult = await Aelf.chain.getTxResult(TransactionId);
+  const txResult = await getAElf().chain.getTxResult(TransactionId);
 
   if (!txResult) {
     throw Error('Can not get transaction result.');
@@ -70,7 +86,7 @@ export async function MessageTxToExplore(txId: string, type: 'success' | 'error'
   }
 }
 export const checkElfAllowanceAndApprove = async (
-  tokenContract: any,
+  tokenContract: AElfContractBasic,
   symbol: string,
   address: string,
   contractAddress: string,
@@ -81,7 +97,7 @@ export const checkElfAllowanceAndApprove = async (
       error: Error;
     }
 > => {
-  const allowance = await tokenContract.GetAllowance.call({
+  const allowance = await tokenContract.callViewMethod('GetAllowance', {
     symbol,
     spender: contractAddress,
     owner: address,

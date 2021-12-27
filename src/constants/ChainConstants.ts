@@ -8,6 +8,7 @@ export class ChainConstants {
   static chainId: number;
   static library?: provider;
   static apiChainId?: string;
+  static chainType: string;
   constructor(id: number, library?: provider) {
     this.id = id;
     this.library = library;
@@ -27,5 +28,6 @@ export class ChainConstants {
     ChainConstants['chainId'] = attrs.CHAIN_INFO.chainId;
     ChainConstants['constants'] = attrs;
     ChainConstants['library'] = this.library;
+    ChainConstants['chainType'] = 'AELF';
   }
 }

@@ -1,26 +1,28 @@
 import React, { createContext, useCallback, useContext, useMemo, useReducer } from 'react';
-import { NightElfCheck } from 'utils/NightElf/NightElf';
+import { NightElf } from 'utils/NightElf';
 import { message } from 'antd';
 import { useEffectOnce } from 'react-use';
-import { getWallet } from 'utils/aelf';
 import { aelfConstants } from 'constants/aelfConstants';
-const { LOGIN_INFO, CHAIN_ID } = aelfConstants;
-const INITIAL_STATE = {};
+const { LOGIN_INFO, CHAIN_ID, HTTP_PROVIDER, APP_NAME } = aelfConstants;
+const INITIAL_STATE = {
+  installedNightElf: !!window?.NightElf,
+};
 const AElfContext = createContext<any>(INITIAL_STATE);
 
 type State = {
   installedNightElf: boolean;
-  wallet?: any;
   address?: string;
   name?: string;
-  publicKey?: any;
+  publicKey?: {
+    x: string;
+    y: string;
+  };
   appPermission?: any;
   aelfInstance?: any;
   chainId?: string;
 };
 const LOGIN = 'LOGIN';
 const LOGOUT = 'LOGOUT';
-const SET_AELF = 'SET_AELF';
 
 type Actions = {
   Connect: () => void;
@@ -54,9 +56,9 @@ function reducer(state: any, { type, payload }: any) {
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [state, dispatch]: [State, any] = useReducer(reducer, INITIAL_STATE);
   const Connect = useCallback(async () => {
-    NightElfCheck.getInstance()
+    NightElf.getInstance()
       .check.then(() => {
-        const aelf = NightElfCheck.initAelfInstanceByExtension();
+        const aelf = NightElf.initAelfInstanceByExtension(HTTP_PROVIDER, APP_NAME);
         aelf
           .login(LOGIN_INFO)
           .then((result: { error: any; errorMessage: { message: any }; detail: string }) => {
@@ -100,39 +102,27 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       },
     );
   }, [state.address, state.aelfInstance]);
-  const initAElf = useCallback(async () => {
-    const wallet = getWallet();
-    dispatch({
-      type: SET_AELF,
-      payload: {
-        wallet,
-        installedNightElf: !!window?.NightElf,
-      },
-    });
-  }, []);
   const checkLogin = useCallback(async () => {
-    if (state.address) {
-      const aelf = NightElfCheck.initAelfInstanceByExtension();
-      const login = await aelf.login(LOGIN_INFO);
-      if (login?.error) {
-        message.error(login.errorMessage.message || login.errorMessage || login.message);
-        dispatch({
-          type: LOGOUT,
-        });
-        return false;
-      } else {
-        const detail = JSON.parse(login.detail);
-        dispatch({
-          type: LOGIN,
-          payload: { ...detail, aelfInstance: aelf },
-        });
-        return true;
-      }
+    const { aelfInstance, address } = state || {};
+    if (!address || !aelfInstance) return false;
+    const login = await aelfInstance.login(LOGIN_INFO);
+    if (login?.error) {
+      message.error(login.errorMessage.message || login.errorMessage || login.message);
+      dispatch({
+        type: LOGOUT,
+      });
+      return false;
+    } else {
+      const detail = JSON.parse(login.detail);
+      dispatch({
+        type: LOGIN,
+        payload: { ...detail, aelfInstance: aelfInstance },
+      });
+      return true;
     }
-  }, [state.address]);
+  }, [state]);
   useEffectOnce(() => {
     Connect();
-    initAElf();
   });
   return (
     <AElfContext.Provider

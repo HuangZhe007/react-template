@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AElfContractBasic } from 'utils/contract';
+import { ContractBasic } from 'utils/contract';
 import { useAElfContractContext } from '.';
 import { ContractKEYS } from './types';
 
@@ -8,6 +8,6 @@ export function useAElfContract(contractName: ContractKEYS) {
   const contract = contracts[contractName];
   return useMemo(() => {
     if (!contract) return;
-    return new AElfContractBasic({ contract });
+    return new ContractBasic({ aelfContract: contract, contractAddress: '1' });
   }, [contract]);
 }
