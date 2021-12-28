@@ -1,5 +1,5 @@
 import { AbstractConnector } from '@web3-react/abstract-connector';
-import { coinbaseWalletIcon, metamask, walletConnectIcon } from '../assets/images';
+import { coinbaseWalletIcon, metamask, walletConnectIcon, nightElfIcon } from '../assets/images';
 import { injected, walletConnect, walletlink } from '../walletConnectors';
 import * as MAINNET from './platform/main';
 import * as KOVAN from './platform/kovan';
@@ -11,7 +11,8 @@ import * as OEC from './platform/oec';
 import * as OECTEST from './platform/oec-test';
 import * as POLYGON from './platform/polygon';
 import * as POLYGONTEST from './platform/polygon-test';
-import { SupportedChainId } from './chain';
+import * as AELF_MAIN from './platform/aelf-main';
+import { SupportedChainId, SupportedELFChainId } from './chain';
 
 export type ChainConstantsType =
   | typeof MAINNET
@@ -19,10 +20,11 @@ export type ChainConstantsType =
   | typeof BSC
   | typeof BSCTEST
   | typeof HECO
-  | typeof HECOTEST;
+  | typeof HECOTEST
+  | typeof AELF_MAIN;
 
 export interface WalletInfo {
-  connector?: AbstractConnector;
+  connector?: AbstractConnector | string;
   name: string;
   icon: string;
   description: string;
@@ -47,8 +49,9 @@ export const supportedChainId = {
   [SupportedChainId.OEC_TESTNET]: OECTEST,
   [SupportedChainId.POLYGON_MAINNET]: POLYGON,
   [SupportedChainId.POLYGON_TESTNET]: POLYGONTEST,
+  [SupportedELFChainId.MAINNET]: AELF_MAIN,
 };
-export const CHAIN_NAME: { [chainId in SupportedChainId]: string } = {
+export const CHAIN_NAME: { [chainId in SupportedChainId | SupportedELFChainId]: string } = {
   [SupportedChainId.MAINNET]: 'Ethereum',
   [SupportedChainId.KOVAN]: 'Kovan',
   [SupportedChainId.BSC_MAINNET]: 'BSC Mainnet',
@@ -59,8 +62,9 @@ export const CHAIN_NAME: { [chainId in SupportedChainId]: string } = {
   [SupportedChainId.OEC_TESTNET]: 'OEC Testnet',
   [SupportedChainId.POLYGON_MAINNET]: 'Polygon Mainnet',
   [SupportedChainId.POLYGON_TESTNET]: 'Polygon Testnet',
+  [SupportedELFChainId.MAINNET]: 'AELF Mainnet',
 };
-export const ACTIVE_CHAIN: { [key: number]: string } = {
+export const ACTIVE_CHAIN: any = {
   [SupportedChainId.MAINNET]: 'Ethereum',
   [SupportedChainId.KOVAN]: 'Kovan',
   [SupportedChainId.BSC_MAINNET]: 'BSC Mainnet',
@@ -71,6 +75,7 @@ export const ACTIVE_CHAIN: { [key: number]: string } = {
   [SupportedChainId.OEC_TESTNET]: 'OEC Testnet',
   [SupportedChainId.POLYGON_MAINNET]: 'Polygon Mainnet',
   [SupportedChainId.POLYGON_TESTNET]: 'Polygon Testnet',
+  [SupportedELFChainId.MAINNET]: 'AELF',
 };
 export const PROD_CHAIN: { [key: number]: string } = {
   [SupportedChainId.MAINNET]: 'Ethereum',
@@ -102,6 +107,14 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     href: null,
     color: '#315CF5',
   },
+  NIGHT_ELF: {
+    connector: 'NIGHT ELF',
+    name: 'NIGHT ELF',
+    icon: nightElfIcon,
+    description: 'NIGHT ELF',
+    href: null,
+    color: '#315CF5',
+  },
 };
 
 export const NetworkContextName = 'NETWORK';
@@ -117,6 +130,10 @@ const prodNetworkList = [
   {
     title: CHAIN_NAME[SupportedChainId.POLYGON_MAINNET],
     info: POLYGON.CHAIN_INFO,
+  },
+  {
+    title: CHAIN_NAME[SupportedELFChainId.MAINNET],
+    info: AELF_MAIN.CHAIN_INFO,
   },
 ];
 
@@ -134,6 +151,10 @@ const testNetworkList = [
   {
     title: CHAIN_NAME[SupportedChainId.POLYGON_TESTNET],
     info: POLYGONTEST.CHAIN_INFO,
+  },
+  {
+    title: CHAIN_NAME[SupportedELFChainId.MAINNET],
+    info: AELF_MAIN.CHAIN_INFO,
   },
 ];
 

@@ -7,14 +7,14 @@ const INITIAL_STATE = {};
 const ChainContext = createContext<any>(INITIAL_STATE);
 
 declare type ChainState = {
-  userChainId?: number;
+  userChainId?: number | string;
 };
 export function useChain(): [ChainState] {
   return useContext(ChainContext);
 }
 
 export default function Provider({ children }: { children: React.ReactNode }) {
-  const [userChainId, setUserChainId] = useLocalStorage(storages.userChainId);
+  const [userChainId, setUserChainId] = useLocalStorage(storages.userChainId, 'AELF');
   useEffect(() => {
     eventBus.addListener(storages.userChainId, setUserChainId);
     return () => {

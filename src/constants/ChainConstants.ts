@@ -1,17 +1,27 @@
+import { ChainType } from 'types';
 import { provider } from 'web3-core';
 import { ACTIVE_CHAIN, ChainConstantsType, CHAIN_ID_TYPE, DEFAULT_CHAIN, supportedChainId } from '.';
 
+type AElfOwnConstants = {
+  CONTRACTS?: { [key: string]: string };
+  LOGIN_INFO?: any;
+};
+
+type Constants = ChainConstantsType & AElfOwnConstants;
+
 export class ChainConstants {
-  public id: number;
-  public library?: provider;
-  static constants: ChainConstantsType;
-  static chainId: number;
+  public id: number | string;
+  static constants: Constants;
+  static chainId: number | string;
   static library?: provider;
   static apiChainId?: string;
-  static chainType: string;
-  constructor(id: number, library?: provider) {
+  static chainType: ChainType;
+  static aelfInstance?: any;
+  constructor(id: number | string, type: ChainType, library?: provider, aelfInstance?: any) {
     this.id = id;
-    this.library = library;
+    ChainConstants['library'] = library;
+    ChainConstants['aelfInstance'] = aelfInstance;
+    ChainConstants['chainType'] = type;
     this.setStaticAttrs();
   }
   getStaticAttr(attrName: keyof ChainConstantsType) {
@@ -27,7 +37,5 @@ export class ChainConstants {
     }
     ChainConstants['chainId'] = attrs.CHAIN_INFO.chainId;
     ChainConstants['constants'] = attrs;
-    ChainConstants['library'] = this.library;
-    ChainConstants['chainType'] = 'AELF';
   }
 }

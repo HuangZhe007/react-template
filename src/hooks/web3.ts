@@ -8,16 +8,32 @@ import { provider } from 'web3-core';
 import BigNumber from 'bignumber.js';
 import { useChain } from 'contexts/useChian';
 import { getProvider } from 'utils';
+import { useAElf } from 'contexts/useAElf';
 
 type ExtendWeb3ReactContextInterface = Web3ReactContextInterface<provider> & {
   chainId?: any;
-  apiChainId?: string;
+  connect?: () => void;
+  aelfInstance?: any;
 };
 export function useActiveWeb3React() {
   const context: ExtendWeb3ReactContextInterface = useWeb3React<provider>();
   const contextNetwork: ExtendWeb3ReactContextInterface = useWeb3React<provider>(NetworkContextName);
   const [{ userChainId }] = useChain();
+  const [{ address, aelfInstance }, { disConnect }] = useAElf();
   const tmpContext = useMemo(() => {
+    if (typeof userChainId === 'string') {
+      return {
+        chainId: userChainId,
+        account: address,
+        library: undefined,
+        apiChainId: 'null',
+        error: null,
+        active: !!address,
+        deactivate: disConnect,
+        connector: address ? 'NIGHT ELF' : undefined,
+        aelfInstance: aelfInstance,
+      };
+    }
     if (!context.active) {
       const chainId = new BigNumber(window?.ethereum?.chainId || '');
       if (!chainId.isNaN()) {
@@ -27,11 +43,13 @@ export function useActiveWeb3React() {
       }
       const provider = getProvider(contextNetwork.chainId);
       if (provider) contextNetwork.library = provider;
+      contextNetwork.deactivate = context.deactivate;
+      contextNetwork.connector = context.connector;
       return contextNetwork;
     }
-    return context;
-  }, [context, contextNetwork, userChainId]);
 
+    return context;
+  }, [address, aelfInstance, context, contextNetwork, disConnect, userChainId]);
   return tmpContext;
 }
 

@@ -1,17 +1,19 @@
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { UnsupportedChainIdError } from '@web3-react/core';
 import { Button, Card, Col, Row } from 'antd';
 import { useCallback, useMemo } from 'react';
 import { injected, walletlink } from '../../walletConnectors';
 import { SUPPORTED_WALLETS } from '../../constants';
-import { getEtherscanLink, shortenAddress } from '../../utils';
-import Copy from 'components/Copy';
+import { getExploreLink, shortenAddress } from '../../utils';
+import Copy from '../../components/Copy';
 import CommonLink from '../../components/CommonLink';
-import CommonModal from 'components/CommonModal';
+import CommonModal from '../../components/CommonModal';
 import { useModal } from 'contexts/useModal';
 import { basicModalView } from 'contexts/useModal/actions';
+import clsx from 'clsx';
+import { useActiveWeb3React } from 'hooks/web3';
 function AccountModal() {
   const [{ accountModal }, { dispatch }] = useModal();
-  const { account, connector, error, chainId, deactivate } = useWeb3React();
+  const { connector, account, error, chainId, deactivate } = useActiveWeb3React();
   const formatConnectorName = useMemo(() => {
     const { ethereum } = window;
     const isMetaMask = !!(ethereum && ethereum.isMetaMask);
@@ -35,7 +37,7 @@ function AccountModal() {
     return <img style={{ width: '18px', height: '18px' }} src={icon} alt="" />;
   }, [connector]);
   const onDisconnect = useCallback(() => {
-    if (connector !== injected && connector !== walletlink) {
+    if (typeof connector !== 'string' && connector !== injected && connector !== walletlink) {
       (connector as any).close();
     } else {
       deactivate();
@@ -47,7 +49,7 @@ function AccountModal() {
       visible={accountModal}
       title="Account"
       width="auto"
-      className={'account-modal'}
+      className={clsx('common-modals', 'account-modal')}
       onCancel={() => dispatch(basicModalView.setAccountModal.actions(false))}>
       <p>{formatConnectorName}</p>
       <Card className="account-modal-card">
@@ -69,7 +71,7 @@ function AccountModal() {
           ) : null}
         </Row>
         {chainId && account ? (
-          <CommonLink href={getEtherscanLink(account, 'address')}>View on Etherscan</CommonLink>
+          <CommonLink href={getExploreLink(account, 'address')}>View on Etherscan</CommonLink>
         ) : null}
       </Card>
       <Col span={24}>

@@ -1,5 +1,5 @@
 import AElfBridge from 'aelf-bridge';
-import { aelfConstants } from 'constants/aelfConstants';
+import { ChainConstants } from 'constants/ChainConstants';
 
 let aelfBridgeInstance = null;
 // let aelfInstanceByExtension = null;
@@ -53,7 +53,7 @@ export default class AelfBridgeCheck {
   static initAelfInstanceByExtension() {
     // static initAelfInstanceByBridge() {
     aelfInstanceByBridge = new AElfBridge({
-      endpoint: aelfConstants.HTTP_PROVIDER,
+      endpoint: ChainConstants.constants.CHAIN_INFO.rpcUrl,
     });
 
     // TODO: get once, storage in local storage.

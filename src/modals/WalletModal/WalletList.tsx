@@ -7,8 +7,12 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { useModalDispatch } from 'contexts/useModal/hooks';
 import { basicModalView } from 'contexts/useModal/actions';
 import clsx from 'clsx';
+import { useActiveWeb3React } from 'hooks/web3';
+import { useAElfDispatch } from 'contexts/useAElf/hooks';
 export default function WalletList() {
-  const { connector, activate } = useWeb3React();
+  const { activate } = useWeb3React();
+  const { chainId, connector } = useActiveWeb3React();
+  const { connect } = useAElfDispatch();
   const [loading, setLoading] = useState<any>();
   const dispatch = useModalDispatch();
 
@@ -17,14 +21,19 @@ export default function WalletList() {
     dispatch(basicModalView.setWalletModal.actions(false));
   }, [dispatch]);
   const tryActivation = useCallback(
-    async (connector: AbstractConnector | undefined, key: string) => {
+    async (connector: AbstractConnector | string | undefined, key: string) => {
       if (loading) return;
       setLoading({ [key]: true });
-      if (connector instanceof WalletConnectConnector) {
-        connector.walletConnectProvider = undefined;
-      }
-      console.log(connector, '=====connector');
+      if (typeof connector === 'string')
+        return connect()
+          .then(() => {
+            onCancel();
+          })
+          .finally(() => {
+            setLoading(undefined);
+          });
 
+      if (connector instanceof WalletConnectConnector) connector.walletConnectProvider = undefined;
       connector &&
         activate(connector, undefined, true)
           .then(() => {
@@ -40,27 +49,36 @@ export default function WalletList() {
             }
           });
     },
-    [activate, loading, onCancel],
+    [activate, connect, loading, onCancel],
   );
+  console.log(chainId, '=====chainId');
+
   return (
     <>
-      {Object.keys(SUPPORTED_WALLETS).map((key) => {
-        const option = SUPPORTED_WALLETS[key];
-        const disabled = option.connector && option.connector === connector;
-        return (
-          <Button
-            className={clsx(disabled && 'selected')}
-            disabled={disabled}
-            loading={loading?.[option.name]}
-            key={option.name}
-            onClick={() => {
-              option.connector !== connector && tryActivation(option.connector, option.name);
-            }}>
-            <div>{option.name}</div>
-            <img style={{ width: '22px', height: '22px' }} src={option.icon} alt="" />
-          </Button>
-        );
-      })}
+      {Object.keys(SUPPORTED_WALLETS)
+        .filter((key) => {
+          const option = SUPPORTED_WALLETS[key];
+          return typeof chainId === 'string'
+            ? typeof option.connector === 'string'
+            : typeof option.connector !== 'string';
+        })
+        .map((key) => {
+          const option = SUPPORTED_WALLETS[key];
+          const disabled = !!(option.connector && option.connector === connector);
+          return (
+            <Button
+              className={clsx(disabled && 'selected')}
+              disabled={disabled}
+              loading={loading?.[option.name]}
+              key={option.name}
+              onClick={() => {
+                option.connector !== connector && tryActivation(option.connector, option.name);
+              }}>
+              <div>{option.name}</div>
+              <img style={{ width: '22px', height: '22px' }} src={option.icon} alt="" />
+            </Button>
+          );
+        })}
     </>
   );
 }

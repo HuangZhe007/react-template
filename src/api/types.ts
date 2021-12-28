@@ -15,6 +15,6 @@ export interface IBaseRequest {
   method?: Method;
   params?: any;
   data?: any;
-  errMessage: string;
+  errMessage?: string;
   query?: string; //this for url parameter； example: test/:id
 }

@@ -4,6 +4,7 @@ import Web3 from 'web3';
 import { getDefaultProvider } from '.';
 import { ACTIVE_CHAIN } from '../constants';
 import { ChainConstants } from 'constants/ChainConstants';
+import { getContractMethods, transformArrayToMap, getTxResult } from './aelfutils';
 export interface AbiType {
   internalType?: string;
   name?: string;
@@ -20,7 +21,7 @@ export interface AbiItem {
   type?: string;
 }
 
-interface ContractProps {
+export interface ContractProps {
   contractABI?: AbiItem[];
   provider?: provider;
   contractAddress: string;
@@ -60,10 +61,9 @@ type CallSendMethod = (
 export type ContractBasicErrorMsg = ErrorMsg;
 export class ContractBasic {
   public address?: string;
-  public provider?: provider;
-  public chainId?: number;
-  public callContract?: WB3ContractBasic | AElfContractBasic;
+  public callContract: WB3ContractBasic | AElfContractBasic;
   constructor(options: ContractProps) {
+    this.address = options.contractAddress;
     this.callContract =
       ChainConstants.chainType === 'AELF' ? new AElfContractBasic(options) : new WB3ContractBasic(options);
   }
@@ -73,29 +73,20 @@ export class ContractBasic {
     paramsOption,
     callOptions = { defaultBlock: 'latest' },
   ) => {
-    if (!this.callContract) return { error: { code: 401, message: 'Contract init error' } };
-    if (ChainConstants.chainType === 'AELF') {
-      return this.callContract.callViewMethod(functionName, paramsOption);
-    } else {
-      return this.callContract.callViewMethod(functionName, paramsOption, callOptions);
-    }
+    if (ChainConstants.chainType === 'AELF') return this.callContract.callViewMethod(functionName, paramsOption);
+
+    return this.callContract.callViewMethod(functionName, paramsOption, callOptions);
   };
 
   public callSendMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
-    if (!this.callContract) return { error: { code: 401, message: 'Contract init error' } };
-    if (ChainConstants.chainType === 'AELF') {
-      return this.callContract.callSendMethod(functionName, account, paramsOption, sendOptions);
-    } else {
-      return this.callContract.callSendMethod(functionName, paramsOption);
-    }
+    if (ChainConstants.chainType === 'AELF') return this.callContract.callSendMethod(functionName, paramsOption);
+
+    return this.callContract.callSendMethod(functionName, account, paramsOption, sendOptions);
   };
   public callSendPromiseMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
-    if (!this.callContract) return { error: { code: 401, message: 'Contract init error' } };
-    if (ChainConstants.chainType === 'AELF') {
-      return this.callContract.callSendPromiseMethod(functionName, account, paramsOption, sendOptions);
-    } else {
-      return this.callContract.callSendPromiseMethod(functionName, paramsOption);
-    }
+    if (ChainConstants.chainType === 'AELF') return this.callContract.callSendPromiseMethod(functionName, paramsOption);
+
+    return this.callContract.callSendPromiseMethod(functionName, account, paramsOption, sendOptions);
   };
 }
 
@@ -179,15 +170,31 @@ type AElfCallSendMethod = (functionName: string, paramsOption?: any) => Promise<
 
 export class AElfContractBasic {
   public contract: any;
+  public address: string;
+  public methods?: any;
   constructor(options: ContractProps) {
-    const { aelfContract } = options;
-
+    const { aelfContract, contractAddress } = options;
+    this.address = contractAddress;
     this.contract = aelfContract;
+    this.getFileDescriptorsSet(this.address);
   }
-  public callViewMethod: AElfCallViewMethod = async (functionName, paramsOption) => {
+  getFileDescriptorsSet = async (address: string) => {
     try {
-      const contract = this.contract;
-      return await contract[functionName].call(paramsOption);
+      this.methods = await getContractMethods(address);
+    } catch (error) {
+      throw new Error(JSON.stringify(error) + 'getContractMethods');
+    }
+  };
+  checkMethods = async () => {
+    if (!this.methods) await this.getFileDescriptorsSet(this.address);
+  };
+  public callViewMethod: AElfCallViewMethod = async (functionName, paramsOption) => {
+    if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
+    try {
+      await this.checkMethods();
+      const req = await this.contract[functionName].call(transformArrayToMap(this.methods[functionName], paramsOption));
+      if (!req.error && req.result) return req.result;
+      return req;
     } catch (e) {
       return { error: e };
     }
@@ -195,21 +202,33 @@ export class AElfContractBasic {
 
   public callSendMethod: AElfCallSendMethod = async (functionName, paramsOption) => {
     if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
+    if (!ChainConstants.aelfInstance.appName) return { error: { code: 402, message: 'connect aelf' } };
     try {
-      const contract = this.contract;
-
-      return await contract[functionName](...(paramsOption || {}));
-    } catch (e) {
-      return { error: e };
+      await this.checkMethods();
+      const req = await this.contract[functionName](transformArrayToMap(this.methods[functionName], paramsOption));
+      if (req.error) {
+        return {
+          error: {
+            code: req.error.message?.Code || req.error,
+            message: req.errorMessage?.message || req.error.message?.Message,
+          },
+        };
+      }
+      const { TransactionId } = req.result || req;
+      const validTxId = await getTxResult(TransactionId);
+      return { TransactionId: validTxId };
+    } catch (e: any) {
+      if (e.message) return { error: e };
+      return { error: { message: e.Error || e.Status } };
     }
   };
 
   public callSendPromiseMethod: AElfCallSendMethod = async (functionName, paramsOption) => {
     if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
+    if (!ChainConstants.aelfInstance.appName) return { error: { code: 402, message: 'connect aelf' } };
     try {
-      const contract = this.contract;
-
-      return contract[functionName](...(paramsOption || {}));
+      await this.checkMethods();
+      return this.contract[functionName](transformArrayToMap(this.methods[functionName], paramsOption));
     } catch (e) {
       return { error: e };
     }

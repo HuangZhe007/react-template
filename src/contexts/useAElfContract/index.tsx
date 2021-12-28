@@ -1,10 +1,9 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useAElf } from 'contexts/useAElf';
 import { sleep } from 'utils';
 import { initContracts } from 'utils/aelfutils';
-import { aelfConstants } from 'constants/aelfConstants';
 import { ContractContextState } from './types';
-const { CONTRACTS } = aelfConstants;
+import { ChainConstants } from 'constants/ChainConstants';
 
 const DESTROY = 'DESTROY';
 const SET_CONTRACT = 'SET_CONTRACT';
@@ -31,28 +30,36 @@ function reducer(state: any, { type, payload }: any) {
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [{ aelfInstance, address }] = useAElf();
-  const init = useCallback(async () => {
-    if (!address) return dispatch({ type: DESTROY });
-    if (aelfInstance?.chain && address) {
-      try {
-        // Need to initialize the contract at the same time
-        // getChainStatus will clear the contracts of NightElf
-        const contracts = await initContracts(CONTRACTS, aelfInstance, address);
-        dispatch({
-          type: SET_CONTRACT,
-          payload: contracts,
-        });
-      } catch (error) {
-        console.log(error, 'init Contract');
-        // Initialize again at one second interval after initialization failure
-        await sleep(1000);
-        init();
+  const initNumber = useRef<number>(0);
+  const init = useCallback(
+    async (num: number) => {
+      if (aelfInstance?.chain && ChainConstants.constants.CONTRACTS) {
+        try {
+          // Need to initialize the contract at the same time
+          // getChainStatus will clear the contracts of NightElf
+          dispatch({ type: DESTROY });
+          const contracts = await initContracts(ChainConstants.constants.CONTRACTS, aelfInstance, address);
+          // last initialized contracts
+          if (num === initNumber.current) {
+            dispatch({
+              type: SET_CONTRACT,
+              payload: contracts,
+            });
+          }
+        } catch (error) {
+          console.log(error, 'init Contract');
+          // Initialize again at one second interval after initialization failure
+          await sleep(1000);
+          init(++initNumber.current);
+        }
       }
-    }
-  }, [address, aelfInstance]);
+    },
+    [address, aelfInstance],
+  );
+
   useEffect(() => {
-    init();
+    init(++initNumber.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address]);
+  }, [address, aelfInstance]);
   return <ContractContext.Provider value={useMemo(() => state, [state])}>{children}</ContractContext.Provider>;
 }

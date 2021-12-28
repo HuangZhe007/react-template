@@ -1,9 +1,10 @@
-import React, { createContext, useCallback, useContext, useMemo, useReducer } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
 import { NightElf } from 'utils/NightElf';
 import { message } from 'antd';
+import { ChainConstants } from 'constants/ChainConstants';
+import { APP_NAME } from 'constants/aelf';
 import { useEffectOnce } from 'react-use';
-import { aelfConstants } from 'constants/aelfConstants';
-const { LOGIN_INFO, CHAIN_ID, HTTP_PROVIDER, APP_NAME } = aelfConstants;
+import { getAElf } from 'utils/aelfutils';
 const INITIAL_STATE = {
   installedNightElf: !!window?.NightElf,
 };
@@ -23,10 +24,11 @@ type State = {
 };
 const LOGIN = 'LOGIN';
 const LOGOUT = 'LOGOUT';
+const SET_AELF = 'SET_AELF';
 
 type Actions = {
-  Connect: () => void;
-  DisConnect: () => void;
+  connect: () => Promise<boolean>;
+  disConnect: () => void;
   checkLogin: () => Promise<undefined | boolean>;
 };
 
@@ -55,40 +57,48 @@ function reducer(state: any, { type, payload }: any) {
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [state, dispatch]: [State, any] = useReducer(reducer, INITIAL_STATE);
-  const Connect = useCallback(async () => {
-    NightElf.getInstance()
-      .check.then(() => {
-        const aelf = NightElf.initAelfInstanceByExtension(HTTP_PROVIDER, APP_NAME);
-        aelf
-          .login(LOGIN_INFO)
-          .then((result: { error: any; errorMessage: { message: any }; detail: string }) => {
-            if (result.error) {
-              message.warning(result.errorMessage.message || result.errorMessage);
-            } else {
-              const detail = JSON.parse(result.detail);
-              dispatch({
-                type: LOGIN,
-                payload: { ...detail, aelfInstance: aelf, chainId: CHAIN_ID },
-              });
-            }
-          })
-          .catch((error: { message: any }) => {
-            message.error(error.message || 'AELF Explorer extension error');
-          });
-      })
-      .catch((error: { message: any }) => {
-        message.error(`AELF Explorer extension load failed: ${error.message}`);
-        console.log('error: ', error);
-      });
+  // const [{ userChainId }] = useChain();
+  // console.log(userChainId, '===userChainId');
+
+  const connect = useCallback(async () => {
+    return new Promise((resolve, reject) => {
+      NightElf.getInstance()
+        .check.then(() => {
+          const aelf = NightElf.initAelfInstanceByExtension(ChainConstants.constants.CHAIN_INFO.rpcUrl, APP_NAME);
+          aelf
+            .login(ChainConstants.constants.LOGIN_INFO)
+            .then((result: { error: any; errorMessage: { message: any }; detail: string }) => {
+              if (result.error) {
+                message.warning(result.errorMessage.message || result.errorMessage);
+                reject(false);
+              } else {
+                const detail = JSON.parse(result.detail);
+                dispatch({
+                  type: LOGIN,
+                  payload: { ...detail, aelfInstance: aelf },
+                });
+                resolve(true);
+              }
+            })
+            .catch((error: { message: any }) => {
+              reject(false);
+              message.error(error.message || 'AELF Explorer extension error');
+            });
+        })
+        .catch((error: { message: any }) => {
+          reject(false);
+          message.error(`AELF Explorer extension load failed: ${error.message}`);
+          console.log('error: ', error);
+        });
+    });
   }, []);
-  const DisConnect = useCallback(async () => {
+  const disConnect = useCallback(async () => {
     if (!state.address || !state.aelfInstance) {
       message.error('Please login');
       return;
     }
     state.aelfInstance.logout(
       {
-        chainId: CHAIN_ID,
         address: state.address,
       },
       (error: { errorMessage: { message: any }; message: any }) => {
@@ -102,10 +112,11 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       },
     );
   }, [state.address, state.aelfInstance]);
+
   const checkLogin = useCallback(async () => {
     const { aelfInstance, address } = state || {};
     if (!address || !aelfInstance) return false;
-    const login = await aelfInstance.login(LOGIN_INFO);
+    const login = await aelfInstance.login(ChainConstants.constants.LOGIN_INFO);
     if (login?.error) {
       message.error(login.errorMessage.message || login.errorMessage || login.message);
       dispatch({
@@ -122,20 +133,30 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
   useEffectOnce(() => {
-    Connect();
+    ChainConstants.chainType === 'AELF' && connect();
   });
+  useEffect(() => {
+    // view aelfInstance
+    const aelf = getAElf();
+    dispatch({
+      type: SET_AELF,
+      payload: {
+        aelfInstance: aelf,
+      },
+    });
+  }, []);
   return (
     <AElfContext.Provider
       value={useMemo(
         () => [
           { ...state },
           {
-            Connect,
-            DisConnect,
+            connect,
+            disConnect,
             checkLogin,
           },
         ],
-        [state, Connect, DisConnect, checkLogin],
+        [state, connect, disConnect, checkLogin],
       )}>
       {children}
     </AElfContext.Provider>

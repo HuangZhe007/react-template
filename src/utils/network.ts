@@ -2,7 +2,7 @@ import storages from 'storages';
 import { eventBus } from 'utils';
 
 type Info = {
-  chainId: number;
+  chainId: number | string;
   rpcUrls?: string[];
   chainName?: string;
   nativeCurrency?: {
@@ -19,13 +19,13 @@ type Info = {
  */
 export const switchNetwork = async (info: Info): Promise<boolean> => {
   const provider = window.ethereum;
+  const { chainId, chainName, nativeCurrency, rpcUrls, blockExplorerUrls, iconUrls } = info;
+  eventBus.emit(storages.userChainId, info.chainId);
+  if (typeof info.chainId === 'string') return true;
   if (!provider?.request) {
     console.error("Can't setup the RPC network on metamask because window.ethereum is undefined");
-    eventBus.emit(storages.userChainId, info.chainId);
     return false;
   }
-
-  const { chainId, chainName, nativeCurrency, rpcUrls, blockExplorerUrls, iconUrls } = info;
   try {
     if (nativeCurrency && chainName) {
       provider.request({

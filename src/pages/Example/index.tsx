@@ -1,5 +1,4 @@
 import { Button } from 'antd';
-import { useAElf } from 'contexts/useAElf';
 import { useAElfContract } from 'contexts/useAElfContract/hooks';
 import { basicModalView } from 'contexts/useModal/actions';
 import { useModalDispatch } from 'contexts/useModal/hooks';
@@ -7,15 +6,14 @@ import { useActiveWeb3React } from 'hooks/web3';
 import { useEffect } from 'react';
 const html = window.document.getElementsByTagName('html')[0];
 export default function Example() {
-  const { account } = useActiveWeb3React();
+  const { account, chainId } = useActiveWeb3React();
   const modalDispatch = useModalDispatch();
-  const [{ address, chainId }, { Connect, DisConnect }] = useAElf();
-  const aelfTokenContract = useAElfContract('tokenContract');
+  const tokenContract = useAElfContract('JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE');
   const balance = async () => {
-    if (!aelfTokenContract) return;
-    const req = await aelfTokenContract?.callViewMethod('GetBalance', {
+    if (!tokenContract || !account) return;
+    const req = await tokenContract?.callViewMethod('GetBalance', {
       symbol: 'ELF',
-      owner: address,
+      owner: account,
     });
     console.log(req, '=====req');
   };
@@ -43,13 +41,6 @@ export default function Example() {
           }
         }}>
         color
-      </Button>
-      <Button
-        type="primary"
-        onClick={() => {
-          !address ? Connect() : DisConnect();
-        }}>
-        {address ? address : 'Connect aelf'}
       </Button>
       {chainId}
       <div className="test-class" />

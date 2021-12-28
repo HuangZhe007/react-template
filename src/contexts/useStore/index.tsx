@@ -25,9 +25,9 @@ function reducer(state: any, { type, payload }: any) {
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  const { chainId, library } = useActiveWeb3React();
+  const { chainId, library, aelfInstance } = useActiveWeb3React();
   const [mobile, setMobile] = useState<boolean>();
-  useMemo(() => initialized(chainId, library), [chainId, library]);
+  useMemo(() => initialized(chainId, library, aelfInstance), [chainId, library, aelfInstance]);
 
   const toChainId = useSearchParam('toChainId');
   useEffectOnce(() => {
@@ -54,8 +54,12 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     </StoreContext.Provider>
   );
 }
-function initialized(chainId?: number, library?: provider) {
+function initialized(chainId?: number | string, library?: provider, aelfInstance?: any) {
   if (chainId) {
-    new ChainConstants(chainId, library);
+    if (typeof chainId === 'string') {
+      new ChainConstants(chainId, 'AELF', library, aelfInstance);
+    } else {
+      new ChainConstants(chainId, 'ERC', library, aelfInstance);
+    }
   }
 }

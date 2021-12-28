@@ -1,43 +1,52 @@
 import { message } from 'antd';
-import { getELFScanLink, shortenString, sleep } from 'utils';
+import { getExploreLink, shortenString, sleep } from 'utils';
 import BigNumber from 'bignumber.js';
 import i18n from 'i18n';
-import { AElfContractBasic } from './contract';
+import { ContractBasic } from './contract';
 import AElf from './aelf';
-import { aelfConstants } from 'constants/aelfConstants';
+import { COMMON_PRIVATE } from 'constants/aelf';
+import { ChainConstants } from 'constants/ChainConstants';
+import storages from 'storages';
+import { baseRequest } from 'api';
+import descriptor from '@aelfqueen/protobufjs/ext/descriptor';
+import { timesDecimals } from './calculate';
+const Wallet = AElf.wallet;
 let wallet: any = null,
   aelf: any = null;
 
 export function getAElf() {
   if (aelf) return aelf;
-  aelf = new AElf(new AElf.providers.HttpProvider(aelfConstants.HTTP_PROVIDER));
+  aelf = new AElf(new AElf.providers.HttpProvider(ChainConstants.constants.CHAIN_INFO.rpcUrl));
   return aelf;
 }
-
 export function getWallet() {
-  const Wallet = AElf.wallet;
   if (wallet) return wallet;
-  wallet = Wallet.getWalletByPrivateKey(aelfConstants.COMMON_PRIVATE);
+  wallet = Wallet.getWalletByPrivateKey(COMMON_PRIVATE);
   return wallet;
 }
 
-export const approveELF = async (address: string, tokenContract: AElfContractBasic) => {
-  const approveResult = await tokenContract.callSendMethod('Approve', {
-    symbol: 'ELF',
-    spender: address,
-    amount: '10000000000000000000000000',
-  });
-
+export const approveELF = async (address: string, tokenContract: ContractBasic, symbol = 'ELF') => {
+  const approveResult = await tokenContract.callSendMethod('Approve', '', [
+    address,
+    symbol,
+    '10000000000000000000000000',
+  ]);
   if (approveResult.error) {
-    message.error(approveResult.errorMessage.message || approveResult.errorMessage);
+    message.error(approveResult.error.message || approveResult?.errorMessage?.message || approveResult.errorMessage);
     return false;
   }
   const { TransactionId } = approveResult.result || approveResult;
+  console.log(TransactionId, '===TransactionId');
+
   await MessageTxToExplore(TransactionId);
   return true;
 };
 
-async function getTxResult(TransactionId: string, reGetCount = 0): Promise<any> {
+export function getBlockHeight() {
+  return getAElf().chain.getBlockHeight();
+}
+
+export async function getTxResult(TransactionId: string, reGetCount = 0): Promise<any> {
   const txResult = await getAElf().chain.getTxResult(TransactionId);
 
   if (!txResult) {
@@ -60,7 +69,7 @@ async function getTxResult(TransactionId: string, reGetCount = 0): Promise<any> 
   throw Error(txResult.Error || 'Transaction error');
 }
 function messageHTML(txId: string, type: 'success' | 'error' | 'warning' = 'success', moreMessage = '') {
-  const explorerHref = getELFScanLink(txId, 'transaction');
+  const explorerHref = getExploreLink(txId, 'transaction');
   const txIdHTML = (
     <div>
       <div>Transaction Id: {shortenString(txId || '', 8)}</div>
@@ -86,7 +95,7 @@ export async function MessageTxToExplore(txId: string, type: 'success' | 'error'
   }
 }
 export const checkElfAllowanceAndApprove = async (
-  tokenContract: AElfContractBasic,
+  tokenContract: ContractBasic,
   symbol: string,
   address: string,
   contractAddress: string,
@@ -97,80 +106,125 @@ export const checkElfAllowanceAndApprove = async (
       error: Error;
     }
 > => {
-  const allowance = await tokenContract.callViewMethod('GetAllowance', {
-    symbol,
-    spender: contractAddress,
-    owner: address,
-  });
+  const allowance = await tokenContract.callViewMethod('GetAllowance', [symbol, address, contractAddress]);
   if (allowance?.error) {
-    message.error(allowance.errorMessage.message || allowance.errorMessage);
+    message.error(allowance.error.message || allowance.errorMessage?.message || allowance.errorMessage);
     return false;
   }
+  const bigA = timesDecimals(amount, 8);
   const allowanceBN = new BigNumber(allowance?.allowance);
-  if (allowanceBN.lt(amount)) {
-    const req = await approveELF(contractAddress, tokenContract);
-    return req;
+  if (allowanceBN.lt(bigA)) {
+    return await approveELF(contractAddress, tokenContract, symbol);
   }
   return true;
 };
-export function getInputTip(stakingAmount: BigNumber, input?: string) {
-  let text;
-  if (stakingAmount.gte(20100)) {
-    text = i18n.t("Can't get more raffle tickets");
-  } else {
-    if (input) {
-      let num;
-      let bigInput = new BigNumber(input);
-      if (stakingAmount.lt(100)) {
-        const diff = stakingAmount.minus(100).abs();
-        bigInput = bigInput.minus(diff);
-        if (bigInput.eq(0)) {
-          num = '1';
-        } else {
-          bigInput = bigInput.div(1000).integerValue().plus(1);
-          num = bigInput.gt(21) ? '21' : bigInput.toFixed();
-        }
-      } else {
-        const total = new BigNumber(20100).minus(stakingAmount);
-        const max = total.div(1000).dp(0, BigNumber.ROUND_UP).integerValue();
-        let diff = stakingAmount.div(1000);
-        diff = diff.minus(diff.integerValue()).times(1000);
-        diff = diff.minus(1100).abs();
-        bigInput = bigInput
-          .minus(diff)
-          .div(1000)
-          .integerValue()
-          .plus(diff.div(1000).gt(1) ? 2 : 1);
-        num = bigInput.gt(max) ? max.toFixed() : bigInput.toFixed();
-      }
-      return i18n.t('Can get more raffle tickets', { num });
-    } else {
-      let amount = stakingAmount;
-      if (stakingAmount.lt(100)) {
-        amount = stakingAmount.minus(100).abs();
-      } else {
-        amount = stakingAmount.minus(100).div(1000);
-        amount = amount.minus(amount.integerValue()).times(1000).minus(1000).abs();
-      }
-      text = i18n.t('ELF are needed to get the next raffle ticket', {
-        num: amount.toFixed(),
-      });
-    }
-  }
-  return text;
-}
 
-export async function initContracts(contracts: { [name: string]: string }, aelfInstance: any, account: string) {
+export async function initContracts(contracts: { [name: string]: string }, aelfInstance: any, account?: string) {
   await aelfInstance.chain.getChainStatus();
   const contractList = Object.entries(contracts);
-  const list = await Promise.all(
-    contractList.map(([, address]) => {
-      return aelfInstance.chain.contractAt(address, { address: account });
-    }),
-  );
+  try {
+    const list = await Promise.all(
+      contractList.map(([, address]) => {
+        return aelfInstance.chain.contractAt(address, account ? { address: account } : getWallet());
+      }),
+    );
+    console.log(list, '======contractList');
+
+    const obj: any = {};
+    contractList.forEach(([name], index) => {
+      obj[name] = list[index];
+    });
+
+    return obj;
+  } catch (error) {
+    console.log(error, 'initContracts');
+  }
+}
+function setContractsFileDescriptorBase64(contracts: any) {
+  localStorage.setItem(storages.contractsFileDescriptorBase64, JSON.stringify(contracts));
+}
+function fileDescriptorSetFormatter(result: any) {
+  const buffer = Buffer.from(result, 'base64');
+  return descriptor.FileDescriptorSet.decode(buffer);
+}
+export async function getContractFileDescriptorSet(address: string): Promise<any> {
+  let base64s: any = localStorage.getItem(storages.contractsFileDescriptorBase64);
+  base64s = JSON.parse(base64s);
+  if (base64s && base64s[address]) {
+    try {
+      return fileDescriptorSetFormatter(base64s[address]);
+    } catch (error) {
+      delete base64s[address];
+      setContractsFileDescriptorBase64(base64s);
+      return getContractFileDescriptorSet(address);
+    }
+  } else {
+    try {
+      if (!base64s) base64s = {};
+      const base64 = await baseRequest({
+        url: `${ChainConstants.constants.CHAIN_INFO.rpcUrl}/api/blockChain/contractFileDescriptorSet`,
+        params: { address },
+      });
+      const fds = fileDescriptorSetFormatter(base64);
+      base64s[address] = base64;
+      setContractsFileDescriptorBase64(base64s);
+      return fds;
+    } catch (error) {
+      console.debug(error, '======getContractFileDescriptorSet');
+    }
+  }
+}
+
+export const getServicesFromFileDescriptors = (descriptors: any) => {
+  const root = AElf.pbjs.Root.fromDescriptor(descriptors, 'proto3').resolveAll();
+  return descriptors.file
+    .filter((f: any) => f.service.length > 0)
+    .map((f: any) => {
+      const sn = f.service[0].name;
+      const fullName = f.package ? `${f.package}.${sn}` : sn;
+      return root.lookupService(fullName);
+    });
+};
+const isWrappedBytes = (resolvedType: any, name: string) => {
+  if (!resolvedType.name || resolvedType.name !== name) {
+    return false;
+  }
+  if (!resolvedType.fieldsArray || resolvedType.fieldsArray.length !== 1) {
+    return false;
+  }
+  return resolvedType.fieldsArray[0].type === 'bytes';
+};
+const isAddress = (resolvedType: any) => isWrappedBytes(resolvedType, 'Address');
+
+const isHash = (resolvedType: any) => isWrappedBytes(resolvedType, 'Hash');
+export function transformArrayToMap(inputType: any, origin: any[]) {
+  const { fieldsArray } = inputType || {};
+  const fieldsLength = (fieldsArray || []).length;
+  if (fieldsLength === 0 || (fieldsLength === 1 && !fieldsArray[0].resolvedType)) return origin;
+
+  if (isAddress(inputType) || isHash(inputType)) return origin;
+  let result = origin;
+  Array.isArray(fieldsArray) &&
+    Array.isArray(origin) &&
+    fieldsArray.forEach((i, k) => {
+      result = {
+        ...result,
+        [i.name]: origin[k],
+      };
+    });
+  return result;
+}
+
+export async function getContractMethods(address: string) {
+  const fds = await getContractFileDescriptorSet(address);
+  const services = getServicesFromFileDescriptors(fds);
   const obj: any = {};
-  contractList.forEach(([name], index) => {
-    obj[name] = list[index];
+  Object.keys(services).forEach((key) => {
+    const service = services[key];
+    Object.keys(service.methods).forEach((key) => {
+      const method = service.methods[key].resolve();
+      obj[method.name] = method.resolvedRequestType;
+    });
   });
   return obj;
 }

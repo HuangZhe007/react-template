@@ -5,3 +5,4 @@ export interface RoutesProps {
   element: React.ComponentType<any>;
   authComp?: React.ComponentType<any>;
 }
+export type ChainType = 'ERC' | 'AELF';

@@ -1,5 +1,3 @@
-export const COMMON_PRIVATE = 'f6e512a3c259e5f9af981d7f99d245aa5bc52fe448495e0b0dd56e8406be6f71';
-
 export const LOGIN_INFO = {
   chainId: 'AELF',
   payload: {
@@ -30,13 +28,15 @@ export const LOGIN_INFO = {
   },
 };
 
-export const HTTP_PROVIDER = 'https://explorer.aelf.io/chain';
-export const EXPLORER_URL = 'https://explorer.aelf.io/';
+export const CHAIN_INFO = {
+  chainId: 'AELF',
+  exploreUrl: 'https://explorer.aelf.io',
+  rpcUrl: 'http://192.168.66.9:8000',
+};
 
 export const CHAIN_ID = 'AELF';
 
-export const APP_NAME = process.env.REACT_APP_HTML_TITLE;
-
 export const CONTRACTS = {
-  tokenContract: 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE',
+  JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE: 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE',
+  URyXBKB47QXW8TAXqJBGVt9edz2Ev5QzR6T2V6YV1hn14mVPp: 'URyXBKB47QXW8TAXqJBGVt9edz2Ev5QzR6T2V6YV1hn14mVPp',
 };

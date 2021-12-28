@@ -11,6 +11,10 @@ export enum SupportedChainId {
   POLYGON_TESTNET = 80001,
 }
 
+export enum SupportedELFChainId {
+  MAINNET = 'AELF',
+}
+
 export type NativeToken = {
   name: string;
   symbol: string;
