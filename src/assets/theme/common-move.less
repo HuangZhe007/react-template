@@ -1,0 +1,152 @@
+@-webkit-keyframes gandalfMoveDownIn {
+  0% {
+    transform: translateY(100%);
+    transform-origin: 0 0;
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(75%);
+    transform-origin: 0 0;
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateY(50%);
+    transform-origin: 0 0;
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(25%);
+    transform-origin: 0 0;
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(0%);
+    transform-origin: 0 0;
+    opacity: 1;
+  }
+}
+@keyframes gandalfMoveDownIn {
+  0% {
+    transform: translateY(100%);
+    transform-origin: 0 0;
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(75%);
+    transform-origin: 0 0;
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateY(50%);
+    transform-origin: 0 0;
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(25%);
+    transform-origin: 0 0;
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(0%);
+    transform-origin: 0 0;
+    opacity: 1;
+  }
+}
+@-webkit-keyframes gandalfMoveDownOut {
+  0% {
+    transform: translateY(0%);
+    transform-origin: 0 0;
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(25%);
+    transform-origin: 0 0;
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateY(50%);
+    transform-origin: 0 0;
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(75%);
+    transform-origin: 0 0;
+    opacity: 0.25;
+  }
+  100% {
+    transform: translateY(100%);
+    transform-origin: 0 0;
+    opacity: 0;
+  }
+}
+@keyframes gandalfMoveDownOut {
+  0% {
+    transform: translateY(0%);
+    transform-origin: 0 0;
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(25%);
+    transform-origin: 0 0;
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateY(50%);
+    transform-origin: 0 0;
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(75%);
+    transform-origin: 0 0;
+    opacity: 0.25;
+  }
+  100% {
+    transform: translateY(100%);
+    transform-origin: 0 0;
+    opacity: 0;
+  }
+}
+@move-time: 0.15s;
+
+
+.@{app-prefix}-move-down-enter,
+.@{app-prefix}-move-down-appear {
+  -webkit-animation-duration: @move-time;
+  animation-duration: @move-time;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-play-state: paused;
+  animation-play-state: paused;
+}
+.@{app-prefix}-move-down-leave {
+  -webkit-animation-duration: @move-time;
+  animation-duration: @move-time;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-play-state: paused;
+  animation-play-state: paused;
+}
+.@{app-prefix}-move-down-enter.@{app-prefix}-move-down-enter-active,
+.@{app-prefix}-move-down-appear.@{app-prefix}-move-down-appear-active {
+  -webkit-animation-name: gandalfMoveDownIn;
+  animation-name: gandalfMoveDownIn;
+  -webkit-animation-play-state: running;
+  animation-play-state: running;
+}
+.@{app-prefix}-move-down-leave.@{app-prefix}-move-down-leave-active {
+  -webkit-animation-name: gandalfMoveDownOut;
+  animation-name: gandalfMoveDownOut;
+  -webkit-animation-play-state: running;
+  animation-play-state: running;
+  pointer-events: none;
+}
+.@{app-prefix}-move-down-enter,
+.@{app-prefix}-move-down-appear {
+  opacity: 0;
+  -webkit-animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
+  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
+}
+.@{app-prefix}-move-down-leave {
+  -webkit-animation-timing-function: cubic-bezier(0.6, 0.04, 0.98, 0.34);
+  animation-timing-function: cubic-bezier(0.6, 0.04, 0.98, 0.34);
+}

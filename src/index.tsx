@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core';
-import { prefixCls, NetworkContextName } from 'constants/index';
+import { NetworkContextName } from 'constants/index';
 import { useLanguage } from 'i18n';
 import Web3ReactManager from 'components/Web3ReactManager';
 import { ANTD_LOCAL } from 'i18n/config';
@@ -15,6 +15,7 @@ import AElfProvider from 'contexts/useAElf';
 import AElfContractProvider from 'contexts/useAElfContract';
 
 import './index.css';
+import { prefixCls } from 'constants/misc';
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
 
 function ContextProviders({ children }: { children?: React.ReactNode }) {

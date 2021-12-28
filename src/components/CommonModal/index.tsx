@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { LeftOutlined } from '@ant-design/icons';
 import { ReactNode } from 'react';
 import { useMobile } from 'contexts/useStore/hooks';
+import { prefixCls } from 'constants/misc';
 export default function CommonModal(
   props: ModalProps & {
     children?: any;
@@ -29,7 +30,7 @@ export default function CommonModal(
         },
         props.className,
       )}
-      transitionName={transitionName ?? isMobile ? 'gandalf-move-down' : undefined}
+      transitionName={transitionName ?? isMobile ? `${prefixCls}-move-down` : undefined}
       title={
         <Row justify="space-between">
           {leftCallBack || leftElement ? (

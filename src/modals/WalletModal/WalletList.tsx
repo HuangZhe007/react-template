@@ -51,8 +51,6 @@ export default function WalletList() {
     },
     [activate, connect, loading, onCancel],
   );
-  console.log(chainId, '=====chainId');
-
   return (
     <>
       {Object.keys(SUPPORTED_WALLETS)

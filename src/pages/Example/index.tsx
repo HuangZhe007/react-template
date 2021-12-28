@@ -10,10 +10,10 @@ export default function Example() {
   const modalDispatch = useModalDispatch();
   const tokenContract = useAElfContract('JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE');
   const balance = async () => {
-    if (!tokenContract || !account) return;
+    if (!tokenContract) return;
     const req = await tokenContract?.callViewMethod('GetBalance', {
       symbol: 'ELF',
-      owner: account,
+      owner: '3DHPLvZudScbRTTEkYBeSYGYx7kHh6udEgwR7DfH2dwFK9kBa',
     });
     console.log(req, '=====req');
   };
