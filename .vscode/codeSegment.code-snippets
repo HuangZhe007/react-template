@@ -20,7 +20,16 @@
 		"prefix": "v",
 		"body": [
 			"~'var(--@{app-prefix}-$1)';",
+			"$2"
 		],
 		"description": "less prefix"
+	},
+	"Class prefix":{
+		"scope": "less",
+		"prefix": "c",
+		"body": [
+			".@{app-prefix}-$1",
+		],
+		"description": "less class prefix"
 	}
 }
