@@ -19,8 +19,7 @@
 		"scope": "less",
 		"prefix": "v",
 		"body": [
-			"~'var(--@{app-prefix}-$1)';",
-			"$2"
+			"~'var(--@{app-prefix}-$1)'",
 		],
 		"description": "less prefix"
 	},
