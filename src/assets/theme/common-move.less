@@ -1,4 +1,4 @@
-@-webkit-keyframes gandalfMoveDownIn {
+@-webkit-keyframes MoveDownIn {
   0% {
     transform: translateY(100%);
     transform-origin: 0 0;
@@ -25,7 +25,7 @@
     opacity: 1;
   }
 }
-@keyframes gandalfMoveDownIn {
+@keyframes MoveDownIn {
   0% {
     transform: translateY(100%);
     transform-origin: 0 0;
@@ -52,7 +52,7 @@
     opacity: 1;
   }
 }
-@-webkit-keyframes gandalfMoveDownOut {
+@-webkit-keyframes MoveDownOut {
   0% {
     transform: translateY(0%);
     transform-origin: 0 0;
@@ -79,7 +79,7 @@
     opacity: 0;
   }
 }
-@keyframes gandalfMoveDownOut {
+@keyframes MoveDownOut {
   0% {
     transform: translateY(0%);
     transform-origin: 0 0;
@@ -128,14 +128,14 @@
 }
 .@{app-prefix}-move-down-enter.@{app-prefix}-move-down-enter-active,
 .@{app-prefix}-move-down-appear.@{app-prefix}-move-down-appear-active {
-  -webkit-animation-name: gandalfMoveDownIn;
-  animation-name: gandalfMoveDownIn;
+  -webkit-animation-name: MoveDownIn;
+  animation-name: MoveDownIn;
   -webkit-animation-play-state: running;
   animation-play-state: running;
 }
 .@{app-prefix}-move-down-leave.@{app-prefix}-move-down-leave-active {
-  -webkit-animation-name: gandalfMoveDownOut;
-  animation-name: gandalfMoveDownOut;
+  -webkit-animation-name: MoveDownOut;
+  animation-name: MoveDownOut;
   -webkit-animation-play-state: running;
   animation-play-state: running;
   pointer-events: none;
