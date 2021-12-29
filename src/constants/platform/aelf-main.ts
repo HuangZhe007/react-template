@@ -31,7 +31,7 @@ export const LOGIN_INFO = {
 export const CHAIN_INFO = {
   chainId: 'AELF',
   exploreUrl: 'https://explorer.aelf.io/',
-  rpcUrl: 'http://192.168.66.9:8000',
+  rpcUrl: 'https://explorer.aelf.io/chain',
 };
 
 export const CHAIN_ID = 'AELF';
