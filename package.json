@@ -32,10 +32,10 @@
     "web3-utils": "^1.6.1"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "craco eject"
+    "start": "cross-env REACT_APP_PREFIX=prefix craco start",
+    "build": "cross-env REACT_APP_PREFIX=prefix craco build",
+    "test": "cross-env REACT_APP_PREFIX=prefix craco test",
+    "eject": "cross-env REACT_APP_PREFIX=prefix craco eject"
   },
   "eslintConfig": {
     "extends": [
@@ -62,6 +62,7 @@
     "@types/react-dom": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
+    "cross-env": "^7.0.3",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.3",

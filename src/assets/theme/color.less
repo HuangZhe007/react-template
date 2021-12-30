@@ -1,11 +1,13 @@
-.l-color {
-  --demo-primary-color: green;
-  --demo-primary-color-hover: green;
-  --demo-red-color: red;
+html {
+  --@{app-prefix}-primary-color: green;
+  --@{app-prefix}-primary-color-hover: green;
+  --@{app-prefix}-dark-color: #000;
+  --@{app-prefix}-light-color: rgb(217, 250, 240) 0;
 }
 
-.d-color {
-  --demo-red-color: green;
-  --demo-primary-color: red;
-  --demo-primary-color-hover: red;
+html[data-theme='dark'] {
+  --@{app-prefix}-primary-color: red;
+  --@{app-prefix}-primary-color-hover: red;
+  --@{app-prefix}-dark-color: rgb(217, 250, 240) 0;
+  --@{app-prefix}-light-color: #000;
 }

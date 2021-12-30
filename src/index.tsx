@@ -13,12 +13,13 @@ import ChianProvider from 'contexts/useChian';
 import StoreProvider from 'contexts/useStore';
 
 import './index.css';
+import { prefixCls } from 'constants/theme';
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
 
 function ContextProviders({ children }: { children?: React.ReactNode }) {
   const { language } = useLanguage();
   return (
-    <ConfigProvider locale={ANTD_LOCAL[language]} autoInsertSpaceInButton={false} prefixCls="demo">
+    <ConfigProvider locale={ANTD_LOCAL[language]} autoInsertSpaceInButton={false} prefixCls={prefixCls}>
       <ModalProvider>{children}</ModalProvider>
     </ConfigProvider>
   );

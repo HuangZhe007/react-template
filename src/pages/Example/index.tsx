@@ -4,6 +4,8 @@ import { useModalDispatch } from 'contexts/useModal/hooks';
 import { useActiveWeb3React } from 'hooks/web3';
 const body = window.document.getElementsByTagName('body')[0];
 body.className = 'l-color';
+import { setThemes } from 'utils/themes';
+import './styles.less';
 export default function Example() {
   const { account } = useActiveWeb3React();
   const modalDispatch = useModalDispatch();
@@ -18,18 +20,14 @@ export default function Example() {
         }}>
         {account ? 'Wallet' : 'Connect'}
       </Button>
-      <Button
-        type="primary"
-        onClick={() => {
-          if (body.className === 'l-color') {
-            body.className = 'd-color';
-          } else {
-            body.className = 'l-color';
-          }
-        }}>
-        color
+      <Button type="primary" onClick={() => setThemes('dark')}>
+        dark
       </Button>
-      <div className="test-class" />
+      <Button type="primary" onClick={() => setThemes('light')}>
+        light
+      </Button>
+      <div className="dark-box" />
+      <div className="light-box" />
     </div>
   );
 }
