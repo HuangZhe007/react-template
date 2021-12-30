@@ -22,6 +22,6 @@ Object.entries(EXPAND_APIS).forEach(([key, value]) => {
   myServer.parseRouter(key, value);
 });
 
-const request: BASE_REQ_TYPES & EXPAND_REQ_TYPES = Object.assign({}, myServer.api, myServer);
+const request: BASE_REQ_TYPES & EXPAND_REQ_TYPES = Object.assign({}, myServer.base, myServer);
 
 export { baseRequest, request };
