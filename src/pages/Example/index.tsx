@@ -4,8 +4,8 @@ import { basicModalView } from 'contexts/useModal/actions';
 import { useModalDispatch } from 'contexts/useModal/hooks';
 import { useActiveWeb3React } from 'hooks/web3';
 import { useEffect } from 'react';
+import { setThemes } from 'utils/themes';
 import './styles.less';
-const html = window.document.getElementsByTagName('html')[0];
 export default function Example() {
   const { account, chainId } = useActiveWeb3React();
   const modalDispatch = useModalDispatch();
@@ -32,17 +32,14 @@ export default function Example() {
         }}>
         {account ? account : 'Connect'}
       </Button>
-      <Button
-        type="primary"
-        onClick={() => {
-          if (!html.getAttribute('data-theme') || html.getAttribute('data-theme') === 'light') {
-            html.setAttribute('data-theme', 'dark');
-          } else {
-            html.setAttribute('data-theme', 'light');
-          }
-        }}>
-        color
+      <Button type="primary" onClick={() => setThemes('dark')}>
+        dark
       </Button>
+      <Button type="primary" onClick={() => setThemes('light')}>
+        light
+      </Button>
+      <div className="dark-box" />
+      <div className="light-box" />
       {chainId}
       <div className="test-class" />
     </div>

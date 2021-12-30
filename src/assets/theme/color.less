@@ -1,11 +1,13 @@
 html {
   --@{app-prefix}-primary-color: green;
   --@{app-prefix}-primary-color-hover: green;
-  --@{app-prefix}-red-color: red;
+  --@{app-prefix}-dark-color: #000;
+  --@{app-prefix}-light-color: rgb(217, 250, 240) 0;
 }
 
 html[data-theme='dark'] {
-  --@{app-prefix}-red-color: green;
   --@{app-prefix}-primary-color: red;
   --@{app-prefix}-primary-color-hover: red;
+  --@{app-prefix}-dark-color: rgb(217, 250, 240) 0;
+  --@{app-prefix}-light-color: #000;
 }

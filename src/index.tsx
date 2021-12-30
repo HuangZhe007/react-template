@@ -15,7 +15,7 @@ import AElfProvider from 'contexts/useAElf';
 import AElfContractProvider from 'contexts/useAElfContract';
 
 import './index.css';
-import { prefixCls } from 'constants/misc';
+import { prefixCls } from 'constants/theme';
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName);
 
 function ContextProviders({ children }: { children?: React.ReactNode }) {
