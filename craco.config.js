@@ -2,8 +2,7 @@
 const CracoLessPlugin = require('craco-less');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
-const { NODE_ENV } = process.env;
-
+const { NODE_ENV, REACT_APP_PREFIX } = process.env;
 const Webpack = {
   production: {
     plugins: [
@@ -31,7 +30,10 @@ module.exports = {
       options: {
         lessLoaderOptions: {
           lessOptions: {
-            modifyVars: {},
+            modifyVars: {
+              '@app-prefix': REACT_APP_PREFIX,
+              '@ant-prefix': REACT_APP_PREFIX,
+            },
             javascriptEnabled: true,
           },
         },
