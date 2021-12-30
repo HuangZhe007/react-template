@@ -1,4 +1,5 @@
 import { Button } from 'antd';
+import Network from 'components/Network';
 import { useAElfContract } from 'contexts/useAElfContract/hooks';
 import { basicModalView } from 'contexts/useModal/actions';
 import { useModalDispatch } from 'contexts/useModal/hooks';
@@ -38,6 +39,7 @@ export default function Example() {
       <Button type="primary" onClick={() => setThemes('light')}>
         light
       </Button>
+      <Network />
       <div className="dark-box" />
       <div className="light-box" />
       {chainId}
