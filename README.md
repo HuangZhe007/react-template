@@ -58,11 +58,14 @@ Within the download you'll find the following directories and files, logically g
 │   ├── constants/              # constants config
 │   ├── contexts/               # contexts folder
 │   ├── hooks/                  # hooks folder
+│   ├── modals/                 # common modal folder
 │   ├── i18n/                   # i18n config
 │   ├── pages/                  # application pages
 │   ├── routes/                 # routes config
+│   ├── storages/               # storages key config
 │   ├── types/                  # types config
 │   ├── utils/                  # utils folder
+│   ├── walletConnectors/       # web3 connector config
 │   ├── App.tsx
 │   ├── index.tsx
 │   ├── ...
