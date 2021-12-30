@@ -56,11 +56,13 @@ Within the download you'll find the following directories and files, logically g
 │   │       └── constants.less  # theme constants config
 │   ├── components/             # common components - header, footer, sidebar, etc.
 │   ├── constants/              # constants config
+│   ├── contexts/               # contexts folder
+│   ├── hooks/                  # hooks folder
 │   ├── i18n/                   # i18n config
 │   ├── pages/                  # application pages
 │   ├── routes/                 # routes config
 │   ├── types/                  # types config
-│   ├── utils/                  # utils catalog
+│   ├── utils/                  # utils folder
 │   ├── App.tsx
 │   ├── index.tsx
 │   ├── ...
