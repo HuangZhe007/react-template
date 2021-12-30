@@ -39,6 +39,39 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
+## What's included
+
+Within the download you'll find the following directories and files, logically grouping common assets and providing both compiled and minified variations. You'll see something like this:
+
+```
+├── public/                     # static files
+│   └── index.html              # html template
+│
+├── src/                        # project root
+│   ├── api/                    # api config
+│   │   └── list.ts             # api list
+│   ├── assets/                 # images, icons, themes, etc.
+│   │   └── theme/              # theme config
+│   │       └── color.less      # theme color config
+│   │       └── constants.less  # theme constants config
+│   ├── components/             # common components - header, footer, sidebar, etc.
+│   ├── constants/              # constants config
+│   ├── contexts/               # contexts folder
+│   ├── hooks/                  # hooks folder
+│   ├── modals/                 # common modal folder
+│   ├── i18n/                   # i18n config
+│   ├── pages/                  # application pages
+│   ├── routes/                 # routes config
+│   ├── storages/               # storages key config
+│   ├── types/                  # types config
+│   ├── utils/                  # utils folder
+│   ├── walletConnectors/       # web3 connector config
+│   ├── App.tsx
+│   ├── index.tsx
+│   ├── ...
+└── package.json
+```
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
