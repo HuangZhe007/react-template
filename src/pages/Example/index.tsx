@@ -1,9 +1,8 @@
 import { Button } from 'antd';
+import Network from 'components/Network';
 import { basicModalView } from 'contexts/useModal/actions';
 import { useModalDispatch } from 'contexts/useModal/hooks';
 import { useActiveWeb3React } from 'hooks/web3';
-const body = window.document.getElementsByTagName('body')[0];
-body.className = 'l-color';
 import { setThemes } from 'utils/themes';
 import './styles.less';
 export default function Example() {
@@ -26,6 +25,7 @@ export default function Example() {
       <Button type="primary" onClick={() => setThemes('light')}>
         light
       </Button>
+      <Network />
       <div className="dark-box" />
       <div className="light-box" />
     </div>
