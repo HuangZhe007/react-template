@@ -15,6 +15,7 @@ type ExtendWeb3ReactContextInterface = Web3ReactContextInterface<provider> & {
   connect?: () => void;
   aelfInstance?: any;
 };
+// useActiveWeb3React contains all attributes of useWeb3React and aelf combination
 export function useActiveWeb3React() {
   const context: ExtendWeb3ReactContextInterface = useWeb3React<provider>();
   const contextNetwork: ExtendWeb3ReactContextInterface = useWeb3React<provider>(NetworkContextName);
@@ -47,7 +48,6 @@ export function useActiveWeb3React() {
       contextNetwork.connector = context.connector;
       return contextNetwork;
     }
-
     return context;
   }, [address, aelfInstance, context, contextNetwork, disConnect, userChainId]);
   return tmpContext;
