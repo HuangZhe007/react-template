@@ -73,20 +73,27 @@ export class ContractBasic {
     paramsOption,
     callOptions = { defaultBlock: 'latest' },
   ) => {
-    if (ChainConstants.chainType === 'AELF') return this.callContract.callViewMethod(functionName, paramsOption);
+    if (this.callContract instanceof AElfContractBasic)
+      return this.callContract.callViewMethod(functionName, paramsOption);
 
     return this.callContract.callViewMethod(functionName, paramsOption, callOptions);
   };
 
   public callSendMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
-    if (ChainConstants.chainType === 'AELF') return this.callContract.callSendMethod(functionName, paramsOption);
-
+    if (this.callContract instanceof AElfContractBasic)
+      return this.callContract.callSendMethod(functionName, paramsOption);
     return this.callContract.callSendMethod(functionName, account, paramsOption, sendOptions);
   };
   public callSendPromiseMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
-    if (ChainConstants.chainType === 'AELF') return this.callContract.callSendPromiseMethod(functionName, paramsOption);
-
+    if (this.callContract instanceof AElfContractBasic)
+      return this.callContract.callSendPromiseMethod(functionName, paramsOption);
     return this.callContract.callSendPromiseMethod(functionName, account, paramsOption, sendOptions);
+  };
+
+  public callEstimateGas: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
+    if (this.callContract instanceof AElfContractBasic)
+      return { error: { code: 404, message: 'AElfContractBasic cannot estimate gas' } };
+    return this.callContract.callEstimateGas(functionName, account, paramsOption, sendOptions);
   };
 }
 
@@ -138,7 +145,7 @@ export class WB3ContractBasic {
       return { error: e };
     }
   };
-
+  // Will call a “constant” method and execute its smart contract method in the EVM without sending any transaction.
   public callSendMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
     if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
     try {
@@ -149,12 +156,26 @@ export class WB3ContractBasic {
       return { error: e };
     }
   };
+  // Will send a transaction to the smart contract and execute its method.
   public callSendPromiseMethod: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
     if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
     try {
       const contract = this.contract;
 
       return contract.methods[functionName](...(paramsOption || [])).send({
+        from: account,
+        ...sendOptions,
+      });
+    } catch (e) {
+      return { error: e };
+    }
+  };
+  // Will call to estimate the gas a method execution will take when executed in the EVM.
+  public callEstimateGas: CallSendMethod = async (functionName, account, paramsOption, sendOptions) => {
+    if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
+    try {
+      const contract = this.contract;
+      return await contract.methods[functionName](...(paramsOption || [])).estimateGas({
         from: account,
         ...sendOptions,
       });
