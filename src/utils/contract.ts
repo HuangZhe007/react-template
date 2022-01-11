@@ -4,7 +4,7 @@ import Web3 from 'web3';
 import { getDefaultProvider } from '.';
 import { ACTIVE_CHAIN } from '../constants';
 import { ChainConstants } from 'constants/ChainConstants';
-import { getContractMethods, transformArrayToMap, getTxResult } from './aelfutils';
+import { getContractMethods, transformArrayToMap, getTxResult } from './aelfUtils';
 export interface AbiType {
   internalType?: string;
   name?: string;

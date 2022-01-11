@@ -4,7 +4,7 @@ import { message } from 'antd';
 import { ChainConstants } from 'constants/ChainConstants';
 import { APP_NAME } from 'constants/aelf';
 import { useEffectOnce } from 'react-use';
-import { getAElf } from 'utils/aelfutils';
+import { getAElf } from 'utils/aelfUtils';
 const INITIAL_STATE = {
   installedNightElf: !!window?.NightElf,
 };

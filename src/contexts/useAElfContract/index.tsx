@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useAElf } from 'contexts/useAElf';
 import { sleep } from 'utils';
-import { initContracts } from 'utils/aelfutils';
+import { initContracts } from 'utils/aelfUtils';
 import { ContractContextState } from './types';
 import { ChainConstants } from 'constants/ChainConstants';
 
