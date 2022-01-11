@@ -36,6 +36,7 @@
   },
   "scripts": {
     "start": "cross-env REACT_APP_PREFIX=prefix craco start",
+    "dev:vconsole": "cross-env CONSOLE=vconsole npm start",
     "build": "cross-env REACT_APP_PREFIX=prefix craco build",
     "test": "cross-env REACT_APP_PREFIX=prefix craco test",
     "eject": "cross-env REACT_APP_PREFIX=prefix craco eject"

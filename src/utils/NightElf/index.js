@@ -1,7 +1,7 @@
 import NightElfCheck from './NightElfCheck';
 import AelfBridgeCheck from '../AelfBridge/AelfBridgeCheck';
 import { isMobile } from 'react-device-detect';
-if (process.env.NODE_ENV === 'development' && isMobile) {
+if (process.env.CONSOLE === 'vconsole') {
   import('vconsole').then((VConsole) => {
     new VConsole.default();
   });
