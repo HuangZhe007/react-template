@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import { DependencyList, Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import isDeepEqual from 'react-use/lib/misc/isDeepEqual';
 
 /**
@@ -66,4 +66,21 @@ function depsAreSame(oldDeps: any[], deps: any[]): boolean {
     if (oldDeps[i] !== deps[i]) return false;
   }
   return true;
+}
+// Add lock to an async function to prevent parallel executions.
+export function useLockCallback<T extends (...args: any[]) => any>(callback: T, deps: DependencyList) {
+  const lock = useRef(false);
+  return useCallback(async (...args) => {
+    if (lock.current) return;
+    lock.current = true;
+    try {
+      const req = await callback(...args);
+      lock.current = false;
+      return req;
+    } catch (e) {
+      lock.current = false;
+      throw e;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }

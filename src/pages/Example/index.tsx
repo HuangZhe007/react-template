@@ -3,10 +3,18 @@ import Network from 'components/Network';
 import { useAElfContract } from 'contexts/useAElfContract/hooks';
 import { basicModalView } from 'contexts/useModal/actions';
 import { useModalDispatch } from 'contexts/useModal/hooks';
+import { useLockCallback } from 'hooks';
 import { useActiveWeb3React } from 'hooks/web3';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { setThemes } from 'utils/themes';
 import './styles.less';
+function mockApiRequest() {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 2000);
+  });
+}
 export default function Example() {
   const { account, chainId } = useActiveWeb3React();
   const modalDispatch = useModalDispatch();
@@ -22,6 +30,14 @@ export default function Example() {
   useEffect(() => {
     balance();
   });
+  const [url, setUrl] = useState({});
+  console.log(url, '====url');
+  const submit = useLockCallback(async () => {
+    console.log('submit strat');
+    await mockApiRequest();
+    console.log('submit end', url);
+  }, [url]);
+
   return (
     <div>
       <Button
@@ -44,6 +60,15 @@ export default function Example() {
       <div className="light-box" />
       {chainId}
       <div className="test-class" />
+      <Button type="primary" onClick={() => setUrl((v) => ({ ...v, a: 1 }))}>
+        a
+      </Button>
+      <Button type="primary" onClick={() => setUrl((v) => ({ ...v, b: 1 }))}>
+        b
+      </Button>
+      <Button type="primary" onClick={() => submit()}>
+        submit
+      </Button>
     </div>
   );
 }
