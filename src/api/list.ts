@@ -1,8 +1,8 @@
-import { API_REQ_FUNCTION } from './types';
+import { API_REQ_FUNCTION, UrlObj } from './types';
 
-export const BASE_APIS = {};
+export const BASE_APIS: UrlObj = {};
 
-export const EXPAND_APIS = {};
+export const EXPAND_APIS: { [key: string]: UrlObj } = {};
 
 export type BASE_REQ_TYPES = {
   [x in keyof typeof BASE_APIS]: API_REQ_FUNCTION;

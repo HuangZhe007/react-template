@@ -18,3 +18,6 @@ export interface IBaseRequest {
   errMessage?: string;
   query?: string; //this for url parameter； example: test/:id
 }
+
+export type BaseConfig = string | { target: string; baseConfig: requestConfig };
+export type UrlObj = { [key: string]: BaseConfig };
