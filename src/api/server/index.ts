@@ -11,12 +11,7 @@ const myServer = new Function();
 myServer.prototype.parseRouter = function (name: string, urlObj: UrlObj) {
   const obj: any = (this[name] = {});
   Object.keys(urlObj).forEach((key) => {
-    const item = urlObj[key];
-    if (typeof item === 'string') {
-      obj[key] = this.send.bind(this, item);
-    } else {
-      obj[key] = this.send.bind(this, item);
-    }
+    obj[key] = this.send.bind(this, urlObj[key]);
   });
 };
 
