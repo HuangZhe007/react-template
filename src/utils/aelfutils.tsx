@@ -128,13 +128,10 @@ export async function initContracts(contracts: { [name: string]: string }, aelfI
         return aelfInstance.chain.contractAt(address, account ? { address: account } : getWallet());
       }),
     );
-    console.log(list, '======contractList');
-
     const obj: any = {};
-    contractList.forEach(([name], index) => {
-      obj[name] = list[index];
+    contractList.forEach(([, contract], index) => {
+      obj[contract] = list[index];
     });
-
     return obj;
   } catch (error) {
     console.log(error, 'initContracts');
