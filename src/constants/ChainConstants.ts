@@ -5,6 +5,7 @@ import { ACTIVE_CHAIN, ChainConstantsType, CHAIN_ID_TYPE, DEFAULT_CHAIN, support
 type AElfOwnConstants = {
   CONTRACTS?: { [key: string]: string };
   LOGIN_INFO?: any;
+  tokenContract?: string;
 };
 
 type Constants = ChainConstantsType & AElfOwnConstants;

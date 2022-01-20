@@ -120,7 +120,6 @@ export const checkElfAllowanceAndApprove = async (
 };
 
 export async function initContracts(contracts: { [name: string]: string }, aelfInstance: any, account?: string) {
-  await aelfInstance.chain.getChainStatus();
   const contractList = Object.entries(contracts);
   try {
     const list = await Promise.all(
@@ -132,6 +131,7 @@ export async function initContracts(contracts: { [name: string]: string }, aelfI
     contractList.forEach(([, contract], index) => {
       obj[contract] = list[index];
     });
+    console.log(obj, '===obj');
     return obj;
   } catch (error) {
     console.log(error, 'initContracts');

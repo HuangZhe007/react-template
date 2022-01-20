@@ -1,17 +1,18 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useReducer, useRef } from 'react';
 import { useAElf } from 'contexts/useAElf';
 import { sleep } from 'utils';
 import { initContracts } from 'utils/aelfUtils';
 import { ContractContextState } from './types';
 import { ChainConstants } from 'constants/ChainConstants';
 
-const DESTROY = 'DESTROY';
+export const DESTROY = 'DESTROY';
 const SET_CONTRACT = 'SET_CONTRACT';
+export const ADD_CONTRACT = 'ADD_CONTRACT';
 
 const INITIAL_STATE = {};
 const ContractContext = createContext<any>(INITIAL_STATE);
 
-export function useAElfContractContext(): ContractContextState {
+export function useAElfContractContext(): [ContractContextState, React.Dispatch<any>] {
   return useContext(ContractContext);
 }
 
@@ -57,9 +58,13 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     [address, aelfInstance],
   );
 
-  useEffect(() => {
-    init(++initNumber.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, aelfInstance]);
-  return <ContractContext.Provider value={useMemo(() => state, [state])}>{children}</ContractContext.Provider>;
+  // useEffect(() => {
+  //   init(++initNumber.current);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [address, aelfInstance]);
+  return (
+    <ContractContext.Provider value={useMemo(() => [state, dispatch], [state, dispatch])}>
+      {children}
+    </ContractContext.Provider>
+  );
 }

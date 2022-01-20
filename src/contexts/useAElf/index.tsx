@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useReducer } from 'react';
 import { NightElf } from 'utils/NightElf';
 import { message } from 'antd';
 import { ChainConstants } from 'constants/ChainConstants';
@@ -61,17 +61,19 @@ export default function Provider({ children }: { children: React.ReactNode }) {
   // console.log(userChainId, '===userChainId');
 
   const connect = useCallback(async () => {
+    const aelfInstance = getAElf();
     return new Promise((resolve, reject) => {
       NightElf.getInstance()
         .check.then(() => {
           const aelf = NightElf.initAelfInstanceByExtension(ChainConstants.constants.CHAIN_INFO.rpcUrl, APP_NAME);
           aelf
             .login(ChainConstants.constants.LOGIN_INFO)
-            .then((result: { error: any; errorMessage: { message: any }; detail: string }) => {
+            .then(async (result: { error: any; errorMessage: { message: any }; detail: string }) => {
               if (result.error) {
                 message.warning(result.errorMessage.message || result.errorMessage);
                 reject(false);
               } else {
+                await aelf.chain.getChainStatus();
                 const detail = JSON.parse(result.detail);
                 dispatch({
                   type: LOGIN,
@@ -81,11 +83,19 @@ export default function Provider({ children }: { children: React.ReactNode }) {
               }
             })
             .catch((error: { message: any }) => {
+              dispatch({
+                type: SET_AELF,
+                payload: { aelfInstance },
+              });
               reject(false);
               message.error(error.message || 'AELF Explorer extension error');
             });
         })
         .catch((error: { message: any }) => {
+          dispatch({
+            type: SET_AELF,
+            payload: { aelfInstance },
+          });
           reject(false);
           message.error(`AELF Explorer extension load failed: ${error.message}`);
           console.log('error: ', error);
@@ -135,16 +145,6 @@ export default function Provider({ children }: { children: React.ReactNode }) {
   useEffectOnce(() => {
     ChainConstants.chainType === 'AELF' && connect();
   });
-  useEffect(() => {
-    // view aelfInstance
-    const aelf = getAElf();
-    dispatch({
-      type: SET_AELF,
-      payload: {
-        aelfInstance: aelf,
-      },
-    });
-  }, []);
   return (
     <AElfContext.Provider
       value={useMemo(

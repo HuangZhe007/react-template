@@ -35,8 +35,5 @@ export const CHAIN_INFO = {
 };
 
 export const CHAIN_ID = 'AELF';
-
-export const CONTRACTS = {
-  tokenContract: 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE',
-  profitContract: '2ZUgaDqWSh4aJ5s5Ker2tRczhJSNep4bVVfrRBRJTRQdMTbA5W',
-};
+export const tokenContract = 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE';
+export const profitContract = '2ZUgaDqWSh4aJ5s5Ker2tRczhJSNep4bVVfrRBRJTRQdMTbA5W';
