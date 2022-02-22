@@ -1,8 +1,6 @@
 import { ChainConstants } from 'constants/ChainConstants';
-import Web3 from 'web3';
 import { getAddress } from '@ethersproject/address';
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers';
-import { supportedChainId } from 'constants/index';
 import EventEmitter from 'events';
 
 export const eventBus = new EventEmitter();
@@ -42,29 +40,6 @@ export function getEtherscanLink(data: string, type: 'transaction' | 'token' | '
     }
   }
 }
-
-const Provider = Object.values(supportedChainId).map((i) => {
-  return new Web3.providers.HttpProvider(i.CHAIN_INFO.rpcUrl, {
-    keepAlive: true,
-    withCredentials: false,
-    timeout: 20000, // ms
-  });
-});
-const chainKeys = Object.keys(supportedChainId);
-
-export const getProvider = (chainId: number) => {
-  const index = chainKeys.findIndex((i) => Number(i) === chainId);
-  if (index !== -1) return Provider[index];
-};
-
-export const getDefaultProvider = () => {
-  const defaultProvider = new Web3.providers.HttpProvider(ChainConstants.constants.CHAIN_INFO.rpcUrl, {
-    keepAlive: true,
-    withCredentials: false,
-    timeout: 20000, // ms
-  });
-  return defaultProvider;
-};
 
 export const isEqAddress = (a1?: string, a2?: string) => {
   if (!isAddress(a1) || !isAddress(a2)) return false;
@@ -116,3 +91,6 @@ export function getExploreLink(data: string, type: 'transaction' | 'token' | 'ad
     }
   }
 }
+
+export * from './converter';
+export * from './provider';

@@ -5,6 +5,7 @@ import { ChainConstants } from 'constants/ChainConstants';
 import { APP_NAME } from 'constants/aelf';
 import { useEffectOnce } from 'react-use';
 import { getAElf } from 'utils/aelfUtils';
+import { AElfInstance, ChainStatus } from 'types/aelf';
 const INITIAL_STATE = {
   installedNightElf: !!window?.NightElf,
 };
@@ -19,8 +20,9 @@ type State = {
     y: string;
   };
   appPermission?: any;
-  aelfInstance?: any;
+  aelfInstance?: AElfInstance;
   chainId?: string;
+  chainStatus?: ChainStatus;
 };
 const LOGIN = 'LOGIN';
 const LOGOUT = 'LOGOUT';
@@ -57,8 +59,6 @@ function reducer(state: any, { type, payload }: any) {
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [state, dispatch]: [State, any] = useReducer(reducer, INITIAL_STATE);
-  // const [{ userChainId }] = useChain();
-  // console.log(userChainId, '===userChainId');
 
   const connect = useCallback(async () => {
     const aelfInstance = getAElf();
@@ -73,11 +73,15 @@ export default function Provider({ children }: { children: React.ReactNode }) {
                 message.warning(result.errorMessage.message || result.errorMessage);
                 reject(false);
               } else {
-                await aelf.chain.getChainStatus();
+                const chainStatus = await aelf.chain.getChainStatus();
                 const detail = JSON.parse(result.detail);
                 dispatch({
                   type: LOGIN,
-                  payload: { ...detail, aelfInstance: aelf },
+                  payload: {
+                    ...detail,
+                    aelfInstance: aelf,
+                    chainStatus: chainStatus && !chainStatus.error ? chainStatus : undefined,
+                  },
                 });
                 resolve(true);
               }

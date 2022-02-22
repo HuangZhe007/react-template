@@ -1,7 +1,7 @@
 import { provider } from 'web3-core';
 import { Contract, SendOptions } from 'web3-eth-contract';
 import Web3 from 'web3';
-import { getDefaultProvider } from '.';
+import { getDefaultProvider, sleep } from '.';
 import { ACTIVE_CHAIN } from '../constants';
 import { ChainConstants } from 'constants/ChainConstants';
 import { getContractMethods, transformArrayToMap, getTxResult } from './aelfUtils';
@@ -210,11 +210,14 @@ export class AElfContractBasic {
     if (!this.methods) await this.getFileDescriptorsSet(this.address);
   };
   public callViewMethod: AElfCallViewMethod = async (functionName, paramsOption) => {
-    if (!this.contract) return { error: { code: 401, message: 'Contract init error' } };
+    if (!this.contract) return { error: { code: 401, message: 'Contract init error1' } };
     try {
       await this.checkMethods();
-      const req = await this.contract[functionName].call(transformArrayToMap(this.methods[functionName], paramsOption));
-      if (!req.error && req.result) return req.result;
+      // TODO upper first letter
+      const functionNameUpper = functionName.replace(functionName[0], functionName[0].toLocaleUpperCase());
+      const inputType = this.methods[functionNameUpper];
+      const req = await this.contract[functionNameUpper].call(transformArrayToMap(inputType, paramsOption));
+      if (!req.error && (req.result || req.result === null)) return req.result;
       return req;
     } catch (e) {
       return { error: e };
@@ -226,7 +229,9 @@ export class AElfContractBasic {
     if (!ChainConstants.aelfInstance.appName) return { error: { code: 402, message: 'connect aelf' } };
     try {
       await this.checkMethods();
-      const req = await this.contract[functionName](transformArrayToMap(this.methods[functionName], paramsOption));
+      const functionNameUpper = functionName.replace(functionName[0], functionName[0].toLocaleUpperCase());
+      const inputType = this.methods[functionNameUpper];
+      const req = await this.contract[functionNameUpper](transformArrayToMap(inputType, paramsOption));
       if (req.error) {
         return {
           error: {
@@ -236,6 +241,7 @@ export class AElfContractBasic {
         };
       }
       const { TransactionId } = req.result || req;
+      await sleep(1000);
       const validTxId = await getTxResult(TransactionId);
       return { TransactionId: validTxId };
     } catch (e: any) {

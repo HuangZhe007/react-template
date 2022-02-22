@@ -23,7 +23,7 @@ export function useAElfContract(contractAddress: ContractKEYS) {
     } catch (error) {
       console.error(error, '====getContract');
     }
-  }, [account, contractAddress, dispatch, aelfInstance]);
+  }, [aelfInstance, contractAddress, account, dispatch]);
   useEffect(() => {
     getContract();
   }, [getContract]);

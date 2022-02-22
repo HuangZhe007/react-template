@@ -47,13 +47,15 @@ export function getBlockHeight() {
 }
 
 export async function getTxResult(TransactionId: string, reGetCount = 0): Promise<any> {
-  const txResult = await getAElf().chain.getTxResult(TransactionId);
-
-  if (!txResult) {
+  const txResult = await ChainConstants.aelfInstance.chain.getTxResult(TransactionId);
+  if (txResult.error && txResult.errorMessage) {
+    throw Error(txResult.errorMessage.message || txResult.errorMessage.Message);
+  }
+  if (!txResult.result) {
     throw Error('Can not get transaction result.');
   }
 
-  if (txResult.Status.toLowerCase() === 'pending') {
+  if (txResult.result.Status.toLowerCase() === 'pending') {
     if (reGetCount > 10) {
       return TransactionId;
     }
@@ -62,11 +64,11 @@ export async function getTxResult(TransactionId: string, reGetCount = 0): Promis
     return getTxResult(TransactionId, reGetCount);
   }
 
-  if (txResult.Status.toLowerCase() === 'mined') {
+  if (txResult.result.Status.toLowerCase() === 'mined') {
     return TransactionId;
   }
 
-  throw Error(txResult.Error || 'Transaction error');
+  throw Error(txResult.result.Error || 'Transaction error');
 }
 function messageHTML(txId: string, type: 'success' | 'error' | 'warning' = 'success', moreMessage = '') {
   const explorerHref = getExploreLink(txId, 'transaction');

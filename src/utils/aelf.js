@@ -1,2 +1,1 @@
-import AElf from 'aelf-sdk';
-export default AElf;
+export { default } from 'aelf-sdk';
