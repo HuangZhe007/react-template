@@ -227,3 +227,34 @@ export async function getContractMethods(address: string) {
   });
   return obj;
 }
+
+export const getSignature = async (aelfInstance: any, account: string, hexToBeSign: string, isMobile: boolean) => {
+  if (isMobile) {
+    const sign = await aelfInstance.sendMessage('keyPairUtils', {
+      method: 'sign',
+      arguments: [hexToBeSign],
+    });
+    if (sign?.error) {
+      message.error(sign.errorMessage.message || sign.errorMessage || sign.message);
+      return false;
+    }
+    const signedMsgString = [
+      sign.r.toString(16, 64),
+      sign.s.toString(16, 64),
+      `0${sign.recoveryParam.toString()}`,
+    ].join('');
+
+    return signedMsgString;
+  } else {
+    const sign = await aelfInstance.getSignature({
+      address: account,
+      hexToBeSign,
+    });
+    if (sign?.error) {
+      message.error(sign.errorMessage.message || sign.errorMessage || sign.message);
+      return false;
+    } else {
+      return sign?.signature;
+    }
+  }
+};
