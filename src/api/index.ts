@@ -1,17 +1,13 @@
-import { BASE_APIS, BASE_REQ_TYPES, EXPAND_APIS, EXPAND_REQ_TYPES } from './list';
+import { BASE_APIS, BASE_REQ_TYPES, DEFAULT_METHOD, EXPAND_APIS, EXPAND_REQ_TYPES } from './list';
 import myServer from './server';
 import { IBaseRequest } from './types';
 import { spliceUrl, service } from './utils';
 
-function baseRequest({ url, method = 'GET', params = '', errMessage, data, query = '' }: IBaseRequest) {
+function baseRequest({ url, method = DEFAULT_METHOD, query = '', ...c }: IBaseRequest) {
   return service({
+    ...c,
     url: spliceUrl(url, query),
     method,
-    data,
-    params,
-  }).catch((error) => {
-    console.error(error, errMessage);
-    return { error: errMessage };
   });
 }
 
