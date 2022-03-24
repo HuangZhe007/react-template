@@ -6,6 +6,7 @@ import { APP_NAME } from 'constants/aelf';
 import { useEffectOnce } from 'react-use';
 import { getAElf } from 'utils/aelfUtils';
 import { AElfInstance, ChainStatus } from 'types/aelf';
+import { formatLoginInfo } from 'contexts/utils';
 const INITIAL_STATE = {
   installedNightElf: !!window?.NightElf,
 };
@@ -15,10 +16,7 @@ type State = {
   installedNightElf: boolean;
   address?: string;
   name?: string;
-  publicKey?: {
-    x: string;
-    y: string;
-  };
+  pubKey?: string;
   appPermission?: any;
   aelfInstance?: AElfInstance;
   chainId?: string;
@@ -45,7 +43,7 @@ function reducer(state: any, { type, payload }: any) {
       return Object.assign({}, state, {
         address: null,
         name: null,
-        publicKey: null,
+        pubKey: null,
         appPermission: null,
         aelfInstance: null,
         chainId: null,
@@ -74,7 +72,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
                 reject(false);
               } else {
                 const chainStatus = await aelf.chain.getChainStatus();
-                const detail = JSON.parse(result.detail);
+                const detail = formatLoginInfo(result.detail);
                 dispatch({
                   type: LOGIN,
                   payload: {
