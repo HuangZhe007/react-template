@@ -1,8 +1,28 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { API_REQ_FUNCTION, UrlObj } from './types';
 
-export const BASE_APIS: UrlObj = {};
+export const DEFAULT_METHOD = 'POST';
 
-export const EXPAND_APIS: { [key: string]: UrlObj } = {};
+/**
+ * api request configuration directory
+ * @example
+ *    upload: {
+ *      target: '/api/file-management/file-descriptor/upload',
+ *      baseConfig: { method: 'POST', },
+ *    },
+ * or:
+ *    upload:'/api/file-management/file-descriptor/upload'
+ *
+ * @description api configuration default method is from DEFAULT_METHOD
+ * @type {UrlObj}  // The type of this object from UrlObj.
+ */
+export const BASE_APIS = {};
+
+/**
+ * api request extension configuration directory
+ * @description object.key // The type of this object key comes from from @type {UrlObj}
+ */
+export const EXPAND_APIS = {};
 
 export type BASE_REQ_TYPES = {
   [x in keyof typeof BASE_APIS]: API_REQ_FUNCTION;
