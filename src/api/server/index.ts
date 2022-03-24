@@ -1,3 +1,4 @@
+import { DEFAULT_METHOD } from 'api/list';
 import { BaseConfig, UrlObj, requestConfig } from 'api/types';
 import { spliceUrl, service, getRequestConfig } from 'api/utils';
 
@@ -22,13 +23,12 @@ myServer.prototype.parseRouter = function (name: string, urlObj: UrlObj) {
  * @return {Promise<any>}
  */
 myServer.prototype.send = function (base: BaseConfig, config: requestConfig) {
-  const { method = 'GET', query = '', data = '', params = '', errMessage } = getRequestConfig(base, config) || {};
+  const { method = DEFAULT_METHOD, query = '', url, ...axiosConfig } = getRequestConfig(base, config) || {};
   return service({
-    url: spliceUrl(typeof base === 'string' ? base : base.target, query),
+    ...axiosConfig,
+    url: url || spliceUrl(typeof base === 'string' ? base : base.target, query),
     method,
-    params,
-    data,
-  }).catch((error) => console.error(error, errMessage));
+  });
 };
 
 export default myServer.prototype;
