@@ -57,7 +57,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 function initialized(chainId?: number | string, library?: provider, aelfInstance?: any) {
   if (chainId) {
     if (typeof chainId === 'string') {
-      new ChainConstants(chainId, 'AELF', library, aelfInstance);
+      new ChainConstants(chainId, 'ELF', library, aelfInstance);
     } else {
       new ChainConstants(chainId, 'ERC', library, aelfInstance);
     }

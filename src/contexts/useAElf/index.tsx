@@ -5,8 +5,9 @@ import { ChainConstants } from 'constants/ChainConstants';
 import { APP_NAME } from 'constants/aelf';
 import { useEffectOnce } from 'react-use';
 import { getAElf } from 'utils/aelfUtils';
-import { AElfInstance, ChainStatus } from 'types/aelf';
-import { formatLoginInfo } from 'contexts/utils';
+import { ChainStatus } from 'types/aelf';
+import { sleep } from 'utils';
+import { isMobile } from 'react-device-detect';
 const INITIAL_STATE = {
   installedNightElf: !!window?.NightElf,
 };
@@ -16,9 +17,12 @@ type State = {
   installedNightElf: boolean;
   address?: string;
   name?: string;
-  pubKey?: string;
+  publicKey?: {
+    x: string;
+    y: string;
+  };
   appPermission?: any;
-  aelfInstance?: AElfInstance;
+  aelfInstance?: any;
   chainId?: string;
   chainStatus?: ChainStatus;
 };
@@ -30,6 +34,7 @@ type Actions = {
   connect: () => Promise<boolean>;
   disConnect: () => void;
   checkLogin: () => Promise<undefined | boolean>;
+  setChainStatus: (chainStatus: ChainStatus) => void;
 };
 
 export function useAElf(): [State, Actions] {
@@ -40,14 +45,19 @@ export function useAElf(): [State, Actions] {
 function reducer(state: any, { type, payload }: any) {
   switch (type) {
     case LOGOUT: {
-      return Object.assign({}, state, {
-        address: null,
-        name: null,
-        pubKey: null,
-        appPermission: null,
-        aelfInstance: null,
-        chainId: null,
-      });
+      return Object.assign(
+        {},
+        state,
+        {
+          address: null,
+          name: null,
+          publicKey: null,
+          appPermission: null,
+          aelfInstance: null,
+          chainId: null,
+        },
+        payload,
+      );
     }
     default: {
       return Object.assign({}, state, payload);
@@ -60,26 +70,25 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 
   const connect = useCallback(async () => {
     const aelfInstance = getAElf();
+    const connector = !window.NightElf && isMobile ? NightElf : NightElf;
     return new Promise((resolve, reject) => {
-      NightElf.getInstance()
+      connector
+        .getInstance()
         .check.then(() => {
-          const aelf = NightElf.initAelfInstanceByExtension(ChainConstants.constants.CHAIN_INFO.rpcUrl, APP_NAME);
+          const aelf = connector.initAelfInstanceByExtension(ChainConstants.constants.CHAIN_INFO.rpcUrl, APP_NAME);
+          console.log(aelf, '====aelf');
+
           aelf
             .login(ChainConstants.constants.LOGIN_INFO)
-            .then(async (result: { error: any; errorMessage: { message: any }; detail: string }) => {
+            .then((result: { error: any; errorMessage: { message: any }; detail: string }) => {
               if (result.error) {
                 message.warning(result.errorMessage.message || result.errorMessage);
                 reject(false);
               } else {
-                const chainStatus = await aelf.chain.getChainStatus();
-                const detail = formatLoginInfo(result.detail);
+                const detail = JSON.parse(result.detail);
                 dispatch({
                   type: LOGIN,
-                  payload: {
-                    ...detail,
-                    aelfInstance: aelf,
-                    chainStatus: chainStatus && !chainStatus.error ? chainStatus : undefined,
-                  },
+                  payload: { ...detail, aelfInstance: aelf },
                 });
                 resolve(true);
               }
@@ -109,22 +118,28 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       message.error('Please login');
       return;
     }
-    state.aelfInstance.logout(
-      {
-        address: state.address,
-      },
-      (error: { errorMessage: { message: any }; message: any }) => {
-        if (error) {
-          message.error(error.errorMessage.message || error.errorMessage || error.message);
-        } else {
-          dispatch({
-            type: LOGOUT,
-          });
-        }
-      },
-    );
+    return new Promise((resolve, reject) => {
+      state.aelfInstance.logout(
+        {
+          address: state.address,
+        },
+        (error: { errorMessage: { message: any }; message: any }) => {
+          if (error) {
+            const e = error.errorMessage.message || error.errorMessage || error.message;
+            message.error(e);
+            reject(e);
+          } else {
+            const aelfInstance = getAElf();
+            dispatch({
+              type: LOGOUT,
+              payload: { aelfInstance },
+            });
+            resolve(true);
+          }
+        },
+      );
+    });
   }, [state.address, state.aelfInstance]);
-
   const checkLogin = useCallback(async () => {
     const { aelfInstance, address } = state || {};
     if (!address || !aelfInstance) return false;
@@ -144,8 +159,24 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       return true;
     }
   }, [state]);
+  const setChainStatus = useCallback((chainStatus: ChainStatus) => {
+    dispatch({
+      type: SET_AELF,
+      payload: { chainStatus },
+    });
+  }, []);
   useEffectOnce(() => {
-    ChainConstants.chainType === 'AELF' && connect();
+    const aelfInstance = getAElf();
+    if (ChainConstants.chainType === 'ELF') {
+      Promise.race([connect(), sleep(5000)]).then((v) => {
+        if (v === 'sleep') {
+          dispatch({
+            type: SET_AELF,
+            payload: { aelfInstance },
+          });
+        }
+      });
+    }
   });
   return (
     <AElfContext.Provider
@@ -156,9 +187,10 @@ export default function Provider({ children }: { children: React.ReactNode }) {
             connect,
             disConnect,
             checkLogin,
+            setChainStatus,
           },
         ],
-        [state, connect, disConnect, checkLogin],
+        [state, connect, disConnect, checkLogin, setChainStatus],
       )}>
       {children}
     </AElfContext.Provider>

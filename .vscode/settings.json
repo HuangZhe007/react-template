@@ -15,5 +15,5 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["stylelint", "antd", "Cascader", "clsx", "fundpools", "Httpclient", "rehype", "Sider"]
+  "cSpell.words": ["aelf", "antd", "Cascader", "clsx", "fundpools", "Httpclient", "rehype", "Sider", "stylelint"]
 }

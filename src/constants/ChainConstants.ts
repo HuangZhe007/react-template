@@ -5,7 +5,7 @@ import { ACTIVE_CHAIN, ChainConstantsType, CHAIN_ID_TYPE, DEFAULT_CHAIN, support
 type AElfOwnConstants = {
   CONTRACTS?: { [key: string]: string };
   LOGIN_INFO?: any;
-  tokenContract?: string;
+  TOKEN_CONTRACT?: string;
 };
 
 type Constants = ChainConstantsType & AElfOwnConstants;
@@ -18,11 +18,22 @@ export class ChainConstants {
   static apiChainId?: string;
   static chainType: ChainType;
   static aelfInstance?: any;
-  constructor(id: number | string, type: ChainType, library?: provider, aelfInstance?: any) {
+  static aelfContracts?: any;
+  static account?: string | null;
+  constructor(
+    id: number | string,
+    type: ChainType,
+    library?: provider,
+    aelfInstance?: any,
+    aelfContracts?: any,
+    account?: string | null,
+  ) {
     this.id = id;
     ChainConstants['library'] = library;
     ChainConstants['aelfInstance'] = aelfInstance;
     ChainConstants['chainType'] = type;
+    ChainConstants['aelfContracts'] = aelfContracts;
+    ChainConstants['account'] = account;
     this.setStaticAttrs();
   }
   getStaticAttr(attrName: keyof ChainConstantsType) {

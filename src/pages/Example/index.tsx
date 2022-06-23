@@ -19,7 +19,7 @@ function mockApiRequest() {
 export default function Example() {
   const { account, chainId } = useActiveWeb3React();
   const modalDispatch = useModalDispatch();
-  const tokenContract = useAElfContract(ChainConstants.constants?.tokenContract || '');
+  const tokenContract = useAElfContract(ChainConstants.constants?.TOKEN_CONTRACT || '');
   const balance = async () => {
     if (!tokenContract) return;
     const req = await tokenContract?.callViewMethod('GetBalance', {

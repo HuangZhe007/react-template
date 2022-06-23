@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useReducer, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useAElf } from 'contexts/useAElf';
 import { sleep } from 'utils';
 import { initContracts } from 'utils/aelfUtils';
@@ -30,7 +30,7 @@ function reducer(state: any, { type, payload }: any) {
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  const [{ aelfInstance, address }] = useAElf();
+  const [{ aelfInstance, address }, { setChainStatus }] = useAElf();
   const initNumber = useRef<number>(0);
   const init = useCallback(
     async (num: number) => {
@@ -39,6 +39,8 @@ export default function Provider({ children }: { children: React.ReactNode }) {
           // Need to initialize the contract at the same time
           // getChainStatus will clear the contracts of NightElf
           dispatch({ type: DESTROY });
+          const chainStatus = await aelfInstance.chain.getChainStatus();
+          !chainStatus.error && setChainStatus(chainStatus.result);
           const contracts = await initContracts(ChainConstants.constants.CONTRACTS, aelfInstance, address);
           // last initialized contracts
           if (num === initNumber.current) {
@@ -55,13 +57,13 @@ export default function Provider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [address, aelfInstance],
+    [address, aelfInstance, setChainStatus],
   );
 
-  // useEffect(() => {
-  //   init(++initNumber.current);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [address, aelfInstance]);
+  useEffect(() => {
+    init(++initNumber.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, aelfInstance]);
   return (
     <ContractContext.Provider value={useMemo(() => [state, dispatch], [state, dispatch])}>
       {children}

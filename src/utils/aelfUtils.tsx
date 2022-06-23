@@ -1,7 +1,6 @@
 import { message } from 'antd';
 import { getExploreLink, shortenString, sleep } from 'utils';
 import BigNumber from 'bignumber.js';
-import i18n from 'i18n';
 import { ContractBasic } from './contract';
 import AElf from './aelf';
 import { COMMON_PRIVATE } from 'constants/aelf';
@@ -10,27 +9,34 @@ import storages from 'storages';
 import { baseRequest } from 'api';
 import descriptor from '@aelfqueen/protobufjs/ext/descriptor';
 import { timesDecimals } from './calculate';
+import { isSymbol } from './reg';
+import { SupportedELFChainId } from 'constants/chain';
+import { isMobile } from 'react-device-detect';
+import { log } from 'console';
 const Wallet = AElf.wallet;
-let wallet: any = null,
-  aelf: any = null;
 
+let wallet: any = null;
+const httpProviders: any = {};
 export function getAElf() {
-  if (aelf) return aelf;
-  aelf = new AElf(new AElf.providers.HttpProvider(ChainConstants.constants.CHAIN_INFO.rpcUrl));
-  return aelf;
+  const rpc = ChainConstants.constants.CHAIN_INFO.rpcUrl;
+  if (!httpProviders[rpc]) httpProviders[rpc] = new AElf(new AElf.providers.HttpProvider(rpc));
+  return httpProviders[rpc];
 }
+
 export function getWallet() {
-  if (wallet) return wallet;
-  wallet = Wallet.getWalletByPrivateKey(COMMON_PRIVATE);
+  if (!wallet) wallet = Wallet.getWalletByPrivateKey(COMMON_PRIVATE);
+  console.log(wallet, '====wallet');
+
   return wallet;
 }
 
-export const approveELF = async (address: string, tokenContract: ContractBasic, symbol = 'ELF') => {
-  const approveResult = await tokenContract.callSendMethod('Approve', '', [
-    address,
-    symbol,
-    '10000000000000000000000000',
-  ]);
+export const approveELF = async (
+  address: string,
+  tokenContract: ContractBasic,
+  symbol = 'ELF',
+  amount: BigNumber | number | string,
+) => {
+  const approveResult = await tokenContract.callSendMethod('Approve', '', [address, symbol, amount.toString()]);
   if (approveResult.error) {
     message.error(approveResult.error.message || approveResult?.errorMessage?.message || approveResult.errorMessage);
     return false;
@@ -45,48 +51,59 @@ export const approveELF = async (address: string, tokenContract: ContractBasic, 
 export function getBlockHeight() {
   return getAElf().chain.getBlockHeight();
 }
-
+export function getSerializedDataFromLog(log: any) {
+  return AElf.pbUtils.getSerializedDataFromLog(log);
+}
 export async function getTxResult(TransactionId: string, reGetCount = 0): Promise<any> {
-  const txResult = await ChainConstants.aelfInstance.chain.getTxResult(TransactionId);
+  const txFun = isMobile ? getAElf().chain.getTxResult : ChainConstants.aelfInstance.chain.getTxResult;
+
+  const txResult = await txFun(TransactionId);
+
   if (txResult.error && txResult.errorMessage) {
     throw Error(txResult.errorMessage.message || txResult.errorMessage.Message);
   }
-  if (!txResult.result) {
+  const result = txResult?.result || txResult;
+
+  if (!result) {
     throw Error('Can not get transaction result.');
   }
 
-  if (txResult.result.Status.toLowerCase() === 'pending') {
-    if (reGetCount > 10) {
-      return TransactionId;
+  if (result.Status.toLowerCase() === 'pending') {
+    if (reGetCount > 20) {
+      return result;
     }
     await sleep(1000);
     reGetCount++;
     return getTxResult(TransactionId, reGetCount);
   }
 
-  if (txResult.result.Status.toLowerCase() === 'mined') {
-    return TransactionId;
+  if (result.Status.toLowerCase() === 'mined') {
+    return result;
   }
 
-  throw Error(txResult.result.Error || 'Transaction error');
+  throw Error(result.Error || 'Transaction error');
 }
-function messageHTML(txId: string, type: 'success' | 'error' | 'warning' = 'success', moreMessage = '') {
+export function messageHTML(txId: string, type: 'success' | 'error' | 'warning' = 'success', moreMessage = '') {
+  const aProps = isMobile ? {} : { target: '_blank', rel: 'noreferrer' };
   const explorerHref = getExploreLink(txId, 'transaction');
   const txIdHTML = (
-    <div>
-      <div>Transaction Id: {shortenString(txId || '', 8)}</div>
-      {moreMessage && <div>{moreMessage.replace('AElf.Sdk.CSharp.AssertionException:', '')}</div>}
-      <a target="_blank" href={explorerHref} rel="noreferrer">
-        {i18n.t('Turn to aelf explorer to get the information of this transaction')}
-      </a>
-    </div>
+    <span>
+      <span>
+        Transaction Id: &nbsp;
+        <a href={explorerHref} style={{ wordBreak: 'break-all' }} {...aProps}>
+          {shortenString(txId || '', 8)}
+        </a>
+      </span>
+      <br />
+      {moreMessage && <span>{moreMessage.replace('AElf.Sdk.CSharp.AssertionException:', '')}</span>}
+    </span>
   );
   message[type](txIdHTML, 10);
 }
 
 export async function MessageTxToExplore(txId: string, type: 'success' | 'error' | 'warning' = 'success') {
   try {
-    const validTxId = await getTxResult(txId);
+    const { TransactionId: validTxId } = await getTxResult(txId);
     messageHTML(validTxId, type);
   } catch (e: any) {
     if (e.TransactionId) {
@@ -100,7 +117,7 @@ export const checkElfAllowanceAndApprove = async (
   tokenContract: ContractBasic,
   symbol: string,
   address: string,
-  contractAddress: string,
+  approveTargetAddress: string,
   amount: string | number,
 ): Promise<
   | boolean
@@ -108,15 +125,19 @@ export const checkElfAllowanceAndApprove = async (
       error: Error;
     }
 > => {
-  const allowance = await tokenContract.callViewMethod('GetAllowance', [symbol, address, contractAddress]);
+  const [allowance, tokenInfo] = await Promise.all([
+    tokenContract.callViewMethod('GetAllowance', [symbol, address, approveTargetAddress]),
+    tokenContract.callViewMethod('GetTokenInfo', [symbol]),
+  ]);
   if (allowance?.error) {
     message.error(allowance.error.message || allowance.errorMessage?.message || allowance.errorMessage);
     return false;
   }
-  const bigA = timesDecimals(amount, 8);
+  console.log(tokenInfo, 'tokenInfo====');
+  const bigA = timesDecimals(amount, tokenInfo?.decimals ?? 8);
   const allowanceBN = new BigNumber(allowance?.allowance);
   if (allowanceBN.lt(bigA)) {
-    return await approveELF(contractAddress, tokenContract, symbol);
+    return await approveELF(approveTargetAddress, tokenContract, symbol, bigA);
   }
   return true;
 };
@@ -125,15 +146,21 @@ export async function initContracts(contracts: { [name: string]: string }, aelfI
   const contractList = Object.entries(contracts);
   try {
     const list = await Promise.all(
-      contractList.map(([, address]) => {
-        return aelfInstance.chain.contractAt(address, account ? { address: account } : getWallet());
+      contractList.map(async ([, address]) => {
+        try {
+          const contract = await aelfInstance.chain.contractAt(address, account ? { address: account } : getWallet());
+          return contract;
+        } catch (error) {
+          console.debug(error, aelfInstance, '=====contractAt');
+          return undefined;
+        }
       }),
     );
     const obj: any = {};
-    contractList.forEach(([, contract], index) => {
-      obj[contract] = list[index];
+    contractList.forEach(([, value], index) => {
+      obj[value] = list[index];
     });
-    console.log(obj, '===obj');
+
     return obj;
   } catch (error) {
     console.log(error, 'initContracts');
@@ -163,6 +190,7 @@ export async function getContractFileDescriptorSet(address: string): Promise<any
       const base64 = await baseRequest({
         url: `${ChainConstants.constants.CHAIN_INFO.rpcUrl}/api/blockChain/contractFileDescriptorSet`,
         params: { address },
+        method: 'GET',
       });
       const fds = fileDescriptorSetFormatter(base64);
       base64s[address] = base64;
@@ -197,11 +225,20 @@ const isAddress = (resolvedType: any) => isWrappedBytes(resolvedType, 'Address')
 
 const isHash = (resolvedType: any) => isWrappedBytes(resolvedType, 'Hash');
 export function transformArrayToMap(inputType: any, origin: any[]) {
+  if (!origin) return '';
+  if (Array.isArray(origin) && origin.length === 0) return '';
+  if (!Array.isArray(origin) || isAddress(inputType) || isHash(inputType)) return origin;
+
   const { fieldsArray } = inputType || {};
   const fieldsLength = (fieldsArray || []).length;
-  if (fieldsLength === 0 || (fieldsLength === 1 && !fieldsArray[0].resolvedType)) return origin;
 
-  if (isAddress(inputType) || isHash(inputType)) return origin;
+  if (fieldsLength === 0) return origin;
+
+  if (fieldsLength === 1) {
+    const i = fieldsArray[0];
+    return { [i.name]: origin[0] };
+  }
+
   let result = origin;
   Array.isArray(fieldsArray) &&
     Array.isArray(origin) &&
@@ -228,6 +265,17 @@ export async function getContractMethods(address: string) {
   return obj;
 }
 
+export const isElfChainSymbol = (symbol?: string | null) => {
+  if (symbol && symbol.length >= 2 && symbol.length <= 10 && isSymbol(symbol)) return symbol;
+  return false;
+};
+
+export const isELFChain = (chainId?: string | number) => {
+  if (typeof chainId === 'string' && chainId === SupportedELFChainId.MAINNET) {
+    return chainId;
+  }
+  return false;
+};
 export const getSignature = async (aelfInstance: any, account: string, hexToBeSign: string, isMobile: boolean) => {
   if (isMobile) {
     const sign = await aelfInstance.sendMessage('keyPairUtils', {
